@@ -10,7 +10,7 @@ export default function Navbar() {
                     <UserButton afterSignOutUrl="/" />
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton mode={"modal"}>
+                    <SignInButton mode={"modal"} forceRedirectUrl="/chat">
                         <SignInButtonStyled />
                     </SignInButton>
                 </SignedOut>

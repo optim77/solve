@@ -23,10 +23,11 @@ export async function GET(req: Request) {
     );
 
     const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("conversation_id", conversationId)
-        .order("created_at", { ascending: false })
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .limit(limit)
         .range(offset, offset + limit - 1);
 
     if (error) throw error;

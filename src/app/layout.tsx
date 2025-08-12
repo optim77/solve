@@ -1,5 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import "./globals.css";
+import '@/app/globals.css';
 import { Toaster } from "react-hot-toast";
 import UserInit from "@/components/UserInit";
 

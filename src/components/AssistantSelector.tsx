@@ -1,44 +1,96 @@
 "use client";
 
-import { assistants } from "@/data/assistants";
+import { useEffect, useState } from "react";
+import { supabase } from "@/superbase/client";
+import { AssistantButton } from "@/elements/AssistantButton";
+import { NewAssistantButton } from "@/elements/NewAssistantButton";
+import { EditAssistantModal } from "@/elements/EditAssistantModal";
+import { useUser } from "@clerk/nextjs";
+import toast from "react-hot-toast";
 
 interface Props {
     selected: string;
     onSelect: (id: string) => void;
 }
 
+interface Assistant {
+    id: string;
+    name: string;
+    icon: string;
+    assistant_id: string;
+}
+
 export default function AssistantSelector({ selected, onSelect }: Props) {
+    const { user } = useUser();
+    const [assistants, setAssistants] = useState<Assistant[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const [editId, setEditId] = useState<string | null>(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
+    const fetchAssistants = async () => {
+        if (!user) return;
+
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from("user_assistants")
+                .select("id, name, icon, assistant_id")
+                .eq("user", user.id)
+                .order("created_at", { ascending: true });
+
+            if (error) {
+                toast.error("Failed to load assistants");
+                console.error(error);
+                return;
+            }
+
+            setAssistants(data || []);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAssistants();
+    }, [user]);
+
+    const handleEdit = (id: string) => {
+        setEditId(id);
+        setIsEditOpen(true);
+    };
+
     return (
-        <div className="flex flex-col gap-2 p-3  rounded-lg w-80 fixed right-0 top-0 h-full">
+        <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed right-0 top-0 h-full overflow-y-auto">
+            {loading && <p className="text-gray-400 text-sm">Loading assistants...</p>}
+
+            {!loading && assistants.length === 0 && (
+                <p className="text-gray-400 text-sm">No assistants yet</p>
+            )}
+
             {assistants.map((assistant) => {
-                const isActive = selected === assistant.id;
+                const isActive = selected === assistant.assistant_id;
                 return (
-                    <button
+                    <AssistantButton
                         key={assistant.id}
-                        onClick={() => onSelect(assistant.id)}
-                        className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-200 text-left
-                            ${
-                            isActive
-                                ? "bg-gray-800 border border-blue-500 shadow-lg"
-                                : "bg-gray-800 border border-gray-700 hover:border-blue-400"
-                        }`}
-                    >
-                        <div
-                            className={`w-10 h-10 flex items-center justify-center rounded-full border-2 text-xl transition-all duration-200
-                            ${isActive ? "border-blue-500" : "border-gray-700"}`}
-                        >
-                            {assistant.icon}
-                        </div>
-                        <span
-                            className={`text-sm font-medium truncate ${
-                                isActive ? "text-blue-400" : "text-white"
-                            }`}
-                        >
-                            {assistant.name}
-                        </span>
-                    </button>
+                        assistant={assistant}
+                        onSelect={onSelect}
+                        isActive={isActive}
+                        onEdit={handleEdit} // nowy props do otwierania modala
+                    />
                 );
             })}
+
+            <NewAssistantButton onAdded={fetchAssistants} />
+
+            {editId && (
+                <EditAssistantModal
+                    assistantId={editId}
+                    isOpen={isEditOpen}
+                    onClose={() => setIsEditOpen(false)}
+                    onEdited={fetchAssistants}
+                />
+            )}
         </div>
     );
 }

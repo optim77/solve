@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 export default function HomePage() {
     return (
         <>
-            <Navbar />
+
             <main className="min-h-screen flex items-center justify-center p-6">
                 <div className="text-center">
                     <h1 className="text-4xl font-bold mb-4">Welcome to Solve</h1>
@@ -30,6 +30,7 @@ export default function HomePage() {
                     </SignedOut>
                 </div>
             </main>
+            <Navbar />
         </>
     );
 }

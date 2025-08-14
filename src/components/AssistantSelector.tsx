@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/superbase/client";
+import { createClient } from "@/lib/superbase/client";
 import { AssistantButton } from "@/elements/AssistantButton";
 import { NewAssistantButton } from "@/elements/NewAssistantButton";
 import { EditAssistantModal } from "@/elements/EditAssistantModal";
-import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
+import { useSupabaseUser } from "@/elements/hooks/useUser";
 
 interface Props {
     selected: string;
@@ -21,7 +21,7 @@ interface Assistant {
 }
 
 export default function AssistantSelector({ selected, onSelect }: Props) {
-    const { user } = useUser();
+    const user = useSupabaseUser();
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -33,10 +33,10 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
 
         setLoading(true);
         try {
-            const { data, error } = await supabase
+            const { data, error } = await createClient()
                 .from("user_assistants")
                 .select("id, name, icon, assistant_id")
-                .eq("user", user.id)
+                .eq("user", user.user.id)
                 .order("created_at", { ascending: true });
 
             if (error) {
@@ -76,7 +76,7 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
                         assistant={assistant}
                         onSelect={onSelect}
                         isActive={isActive}
-                        onEdit={handleEdit} // nowy props do otwierania modala
+                        onEdit={handleEdit}
                     />
                 );
             })}

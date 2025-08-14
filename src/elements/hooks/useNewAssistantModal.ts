@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
-import { supabase } from "@/superbase/client";
+import { createClient } from "@/lib/superbase/client";
+import { useSupabaseUser } from "@/elements/hooks/useUser";
 
 export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) => {
     const [name, setName] = useState("");
     const [prompt, setPrompt] = useState("");
     const [icon, setIcon] = useState("");
     const [loading, setLoading] = useState(false);
-    const { user } = useUser();
+    const { user } = useSupabaseUser();
 
     const handleSave = async () => {
         if (!name || !prompt) {
@@ -18,7 +18,7 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
         try {
             setLoading(true);
 
-            const { error } = await supabase.from("user_assistants").insert([
+            const { error } = await createClient().from("user_assistants").insert([
                 {
                     name,
                     prompt,

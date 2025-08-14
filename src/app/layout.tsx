@@ -1,7 +1,7 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import '@/app/globals.css';
 import { Toaster } from "react-hot-toast";
-import UserInit from "@/components/UserInit";
+
+import { ThemeProvider } from "next-themes";
 
 export const metadata = {
     title: "Solve",
@@ -9,15 +9,20 @@ export const metadata = {
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
+
     return (
-        <ClerkProvider>
-            <html lang="en">
+        <html lang="en">
             <body>
-                <Toaster position="top-center" />
-                <UserInit />
-                {children}
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <Toaster position="top-center"/>
+                    {children}
+            </ThemeProvider>
             </body>
-            </html>
-        </ClerkProvider>
+        </html>
     );
 }

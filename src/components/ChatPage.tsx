@@ -5,16 +5,19 @@ import AssistantSelector from "@/components/AssistantSelector";
 import { assistants } from "@/data/assistants";
 import toast from "react-hot-toast";
 import Markdown from "react-markdown";
-import { supabase } from "@/superbase/client";
+import { createClient } from "@/lib/superbase/client";
+import { useRouter } from "next/navigation";
 
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
 export default function ChatPage() {
+    const router = useRouter();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [selectedAssistant, setSelectedAssistant] = useState("mechanic");
     const [conversationId, setConversationId] = useState<string | null>(null);
+    const [loadingUser, setLoadingUser] = useState(true);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const LIMIT = 20;
@@ -22,7 +25,7 @@ export default function ChatPage() {
 
     const fetchLatestConversation = async () => {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await createClient()
                 .from("conversations")
                 .select("id")
                 .eq("assistant_id", selectedAssistant)
@@ -53,7 +56,7 @@ export default function ChatPage() {
     const fetchLatestMessages = async (convId: string) => {
         setLoading(true);
         try {
-            const { data: batch, error } = await supabase
+            const { data: batch, error } = await createClient()
                 .from("messages")
                 .select("*")
                 .eq("conversation_id", convId)
@@ -85,7 +88,7 @@ export default function ChatPage() {
         try {
             const oldest = messages[0].created_at;
 
-            const { data: batch, error } = await supabase
+            const { data: batch, error } = await createClient()
                 .from("messages")
                 .select("*")
                 .eq("conversation_id", conversationId)
@@ -165,6 +168,8 @@ export default function ChatPage() {
     useEffect(() => {
         fetchLatestConversation();
     }, [selectedAssistant]);
+
+
 
     return (
         <div className="grid grid-cols-3 gap-20">

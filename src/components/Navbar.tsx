@@ -1,4 +1,4 @@
-import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+
 import { SignInButtonStyled } from "@/components/Elements";
 
 export default function Navbar() {
@@ -6,14 +6,7 @@ export default function Navbar() {
         <nav className="flex fixed left-0 bottom-20 p-4 bg-opacity-10 backdrop-blur-md">
             <div></div>
             <div>
-                <SignedIn>
-                    <UserButton afterSignOutUrl="/" />
-                </SignedIn>
-                <SignedOut>
-                    <SignInButton mode={"modal"} forceRedirectUrl="/chat">
-                        <SignInButtonStyled />
-                    </SignInButton>
-                </SignedOut>
+                <SignInButtonStyled />
             </div>
         </nav>
     );

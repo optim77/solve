@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { createClient } from "@/lib/superbase/client";
-import { useSupabaseUser } from "@/elements/hooks/useUser";
+import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
+
 
 export const useEditAssistantModal = (
     assistantId: string | null,
@@ -21,7 +22,7 @@ export const useEditAssistantModal = (
             .from("user_assistants")
             .select("*")
             .eq("id", assistantId)
-            .eq("user", user.id)
+            .eq("user_id", user.id)
             .single();
 
         if (error) {
@@ -38,7 +39,6 @@ export const useEditAssistantModal = (
     };
 
     const handleSave = async () => {
-        console.error(assistantId);
         if (!name || !prompt) {
             toast.error("Fill required fields");
             return;
@@ -52,10 +52,9 @@ export const useEditAssistantModal = (
                     name,
                     prompt,
                     icon,
-                    assistant_id: name.toLowerCase().replace(/\s+/g, "-"),
                 })
                 .eq("id", assistantId)
-                .eq("user", user?.id);
+                .eq("user_id", user?.id);
 
             if (error) throw error;
 
@@ -70,11 +69,38 @@ export const useEditAssistantModal = (
         }
     };
 
+    const handleDelete = async () => {
+        if (!assistantId) return;
+
+        if (!confirm("Are you sure you want to delete this assistant?")) return;
+
+        try {
+            setLoading(true);
+
+            const { error } = await createClient()
+                .from("user_assistants")
+                .delete()
+                .eq("id", assistantId)
+                .eq("user_id", user?.id);
+
+            if (error) throw error;
+
+            toast.success("Assistant deleted successfully");
+            onEdited && onEdited();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            toast.error("Error while deleting assistant");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        if (assistantId && onClose()) {
+        if (assistantId) {
             fetchAssistant();
         }
-    }, [assistantId]);
+    }, [assistantId, user?.id]);
 
     return {
         name,
@@ -85,5 +111,6 @@ export const useEditAssistantModal = (
         setIcon,
         loading,
         handleSave,
+        handleDelete
     };
 };

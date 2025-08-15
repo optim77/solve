@@ -1,10 +1,17 @@
 import ChatPage from "@/components/ChatPage";
-import Navbar from "@/components/Navbar";
+import { createClient } from "@/lib/superbase/server";
+import { redirect } from "next/navigation";
 
-export default function Chat() {
+export default async function Chat() {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data?.user) {
+        redirect("/auth/login");
+    }
+
     return (
         <>
-            <Navbar />
             <ChatPage />
         </>
     );

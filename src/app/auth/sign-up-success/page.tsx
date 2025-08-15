@@ -1,30 +1,32 @@
-import { createClient } from "@/lib/superbase/server";
-import { type EmailOtpType } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
-import { type NextRequest } from "next/server";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
-export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const token_hash = searchParams.get("token_hash");
-    const type = searchParams.get("type") as EmailOtpType | null;
-    const next = searchParams.get("next") ?? "/";
-
-    if (token_hash && type) {
-        const supabase = await createClient();
-
-        const { error } = await supabase.auth.verifyOtp({
-            type,
-            token_hash,
-        });
-        if (!error) {
-            // redirect user to specified redirect URL or root of app
-            redirect(next);
-        } else {
-            // redirect the user to an error page with some instructions
-            redirect(`/auth/error?error=${error?.message}`);
-        }
-    }
-
-    // redirect the user to an error page with some instructions
-    redirect(`/auth/error?error=No token hash or type`);
+export default function Page() {
+    return (
+        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+            <div className="w-full max-w-sm">
+                <div className="flex flex-col gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-2xl">
+                                Thank you for signing up!
+                            </CardTitle>
+                            <CardDescription>Check your email to confirm</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">
+                                You&apos;ve successfully signed up. Please check your email to
+                                confirm your account before signing in.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    );
 }

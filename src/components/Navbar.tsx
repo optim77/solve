@@ -1,12 +1,15 @@
 
-import { SignInButtonStyled } from "@/components/Elements";
+import { AuthButton } from "@/components/auth/AuthButton";
 
 export default function Navbar() {
     return (
-        <nav className="flex fixed left-0 bottom-20 p-4 bg-opacity-10 backdrop-blur-md">
-            <div></div>
-            <div>
-                <SignInButtonStyled />
+        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
+            <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
+                <div className="flex gap-5 items-center font-semibold">
+                    <div className="flex items-center gap-2">
+                    </div>
+                </div>
+                <AuthButton/>
             </div>
         </nav>
     );

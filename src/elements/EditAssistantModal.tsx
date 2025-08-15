@@ -26,8 +26,10 @@ export const EditAssistantModal = ({
         setIcon,
         loading,
         handleSave,
+        handleDelete
     } = useEditAssistantModal(assistantId, onClose, onEdited);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
     if (!isOpen) return null;
 
     return (
@@ -87,6 +89,13 @@ export const EditAssistantModal = ({
                     )}
 
                     <div className="flex justify-end gap-2">
+                        <button
+                            onClick={handleDelete}
+                            disabled={loading}
+                            className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white disabled:opacity-50"
+                        >
+                            Delete
+                        </button>
                         <button
                             onClick={onClose}
                             className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white"

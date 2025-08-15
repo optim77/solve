@@ -2,6 +2,7 @@ import '@/app/globals.css';
 import { Toaster } from "react-hot-toast";
 
 import { ThemeProvider } from "next-themes";
+import { SupabaseUserProvider } from "@/components/superbase/SupabaseUserProvider";
 
 export const metadata = {
     title: "Solve",
@@ -13,6 +14,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="en">
             <body>
+            <SupabaseUserProvider>
             <ThemeProvider
                 attribute="class"
                 defaultTheme="system"
@@ -22,6 +24,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
                 <Toaster position="top-center"/>
                     {children}
             </ThemeProvider>
+            </SupabaseUserProvider>
             </body>
         </html>
     );

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { createClient } from "@/lib/superbase/client";
-import { useSupabaseUser } from "@/elements/hooks/useUser";
+import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
+
 
 export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) => {
     const [name, setName] = useState("");
@@ -23,8 +24,7 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
                     name,
                     prompt,
                     icon,
-                    assistant_id: name.toLowerCase().replace(/\s+/g, "-"),
-                    user: user?.id,
+                    user_id: user?.id,
                 },
             ]);
 
@@ -43,5 +43,6 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
             setLoading(false);
         }
     };
+
     return { name, setName, prompt, setPrompt, icon, setIcon, handleSave, loading };
 }

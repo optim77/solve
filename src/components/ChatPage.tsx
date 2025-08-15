@@ -6,18 +6,16 @@ import { assistants } from "@/data/assistants";
 import toast from "react-hot-toast";
 import Markdown from "react-markdown";
 import { createClient } from "@/lib/superbase/client";
-import { useRouter } from "next/navigation";
 
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
 export default function ChatPage() {
-    const router = useRouter();
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [selectedAssistant, setSelectedAssistant] = useState("mechanic");
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [loadingUser, setLoadingUser] = useState(true);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const LIMIT = 20;

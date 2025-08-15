@@ -1,4 +1,4 @@
-import { Pencil } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 
 interface AssistantProps {
     id: string;
@@ -39,12 +39,18 @@ export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) 
                     {assistant.name}
                 </span>
             </button>
+            <button
+                onClick={() => onEdit(assistant.id)}
+                className="absolute top-1/2 right-13 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
+            >
+                <Plus size={14} className="text-gray-400"/>
+            </button>
 
             <button
                 onClick={() => onEdit(assistant.id)}
                 className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
             >
-                <Pencil size={14} className="text-gray-400" />
+                <Pencil size={14} className="text-gray-400"/>
             </button>
 
         </div>

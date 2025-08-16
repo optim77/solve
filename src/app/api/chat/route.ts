@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
+import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
     try {
-        const user = await currentUser();
+        const user = useSupabaseUser();
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
@@ -21,12 +21,11 @@ export async function POST(req: Request) {
 
         let convId = conversationId;
 
-        // Jeśli nie podano conversationId — tworzymy nową rozmowę
         if (!convId) {
             const { data: conv, error: convError } = await supabase
                 .from("conversations")
                 .insert({
-                    clerk_id: user.id,
+                    user_id: user.user.id,
                     assistant_id: assistantId,
                     title: messages[messages.length - 1]?.content?.slice(0, 50) || "New chat"
                 })
@@ -37,7 +36,6 @@ export async function POST(req: Request) {
             convId = conv.id;
         }
 
-        // OpenAI API
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages,
@@ -45,7 +43,6 @@ export async function POST(req: Request) {
 
         const reply = completion.choices[0].message.content || "";
 
-        // Zapis wiadomości użytkownika
         const userMessage = messages[messages.length - 1];
         await supabase.from("messages").insert({
             conversation_id: convId,
@@ -53,7 +50,6 @@ export async function POST(req: Request) {
             content: userMessage.content
         });
 
-        // Zapis wiadomości AI
         await supabase.from("messages").insert({
             conversation_id: convId,
             role: "assistant",

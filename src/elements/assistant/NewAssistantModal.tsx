@@ -1,6 +1,6 @@
 import { useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { useNewAssistantModal } from "@/elements/hooks/useNewAssistantModal";
+import { useNewAssistantModal } from "@/elements/assistant/hooks/useNewAssistantModal";
 
 interface Props {
     isOpen: boolean;

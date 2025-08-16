@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditAssistantModal } from "@/elements/hooks/useEditAssistantModal";
+import { useEditAssistantModal } from "@/elements/assistant/hooks/useEditAssistantModal";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useState } from "react";
 

@@ -1,12 +1,12 @@
-import { AssistantButton } from "@/elements/AssistantButton";
-import { NewAssistantButton } from "@/elements/NewAssistantButton";
-import { EditAssistantModal } from "@/elements/EditAssistantModal";
+import { AssistantButton } from "@/elements/assistant/AssistantButton";
+import { NewAssistantButton } from "@/elements/assistant/NewAssistantButton";
+import { EditAssistantModal } from "@/elements/assistant/EditAssistantModal";
 
-import { useAssistant } from "@/elements/hooks/useAssistant";
+import { Assistant, useAssistant } from "@/elements/assistant/hooks/useAssistant";
 
 interface Props {
-    selected: string;
-    onSelect: (id: string) => void;
+    selected?: string;
+    onSelect: (assistant: Assistant) => void;
 }
 
 
@@ -23,7 +23,7 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
     } = useAssistant(selected);
 
     return (
-        <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed right-0 top-0 h-full overflow-y-auto">
+        <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed right-0 top-0 h-full overflow-y-auto border-l-3">
             {loading && <p className="text-gray-400 text-sm">Loading assistants...</p>}
 
             {!loading && memoizedAssistants.length === 0 && (

@@ -6,6 +6,9 @@ import { assistants } from "@/data/assistants";
 import toast from "react-hot-toast";
 import Markdown from "react-markdown";
 import { createClient } from "@/lib/superbase/client";
+import { BlankChatMessage } from "@/elements/chat/BlankChatMessage";
+import ChatSelector from "@/components/ChatSelector";
+import { Assistant } from "@/elements/assistant/hooks/useAssistant";
 
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
@@ -14,7 +17,8 @@ export default function ChatPage() {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
-    const [selectedAssistant, setSelectedAssistant] = useState("mechanic");
+    const [selectedAssistant, setSelectedAssistant] = useState<Assistant>();
+    const [selectedChat, setSelectedChat] = useState("");
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -24,7 +28,7 @@ export default function ChatPage() {
     const fetchLatestConversation = async () => {
         try {
             const { data, error } = await createClient()
-                .from("conversations")
+                .from("chats")
                 .select("id")
                 .eq("assistant_id", selectedAssistant)
                 .order("created_at", { ascending: false })
@@ -32,6 +36,7 @@ export default function ChatPage() {
                 .single();
 
             if (error) {
+                console.error(error);
                 toast.error("Błąd pobierania rozmowy");
                 return;
             }
@@ -57,11 +62,12 @@ export default function ChatPage() {
             const { data: batch, error } = await createClient()
                 .from("messages")
                 .select("*")
-                .eq("conversation_id", convId)
+                .eq("chat_id", convId)
                 .order("created_at", { ascending: false })
                 .limit(LIMIT);
 
             if (error) {
+                console.log(error);
                 toast.error("Błąd pobierania wiadomości");
                 return;
             }
@@ -89,7 +95,7 @@ export default function ChatPage() {
             const { data: batch, error } = await createClient()
                 .from("messages")
                 .select("*")
-                .eq("conversation_id", conversationId)
+                .eq("chat_id", conversationId)
                 .lt("created_at", oldest)
                 .order("created_at", { ascending: false })
                 .limit(LIMIT);
@@ -124,7 +130,7 @@ export default function ChatPage() {
     const sendMessage = async () => {
         if (!input.trim() || !conversationId) return;
 
-        const currentAssistant = assistants.find((a) => a.id === selectedAssistant);
+        const currentAssistant = assistants.find((a) => a.id === selectedAssistant?.id);
         const newMessage: Message = { role: "user", content: input };
 
         setMessages((prev) => [...prev, newMessage]);
@@ -164,23 +170,24 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
-        fetchLatestConversation();
-    }, [selectedAssistant]);
 
+    }, [selectedAssistant]);
 
 
     return (
         <div className="grid grid-cols-3 gap-20">
             <div>
-                chats
+                <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
             </div>
             <div>
                 <div
                     ref={chatContainerRef}
                     onScroll={handleScroll}
-                    className="bg-gray-800 p-4 rounded-lg min-h-[400px] max-h-[800px] mb-4 flex flex-col gap-3 overflow-y-auto"
+                    className="bg-gray-800 p-4 rounded-lg min-h-[400px] max-h-[800px] mb-4 flex flex-col gap-3 overflow-y-auto mt-10"
                 >
                     {loading && messages.length === 0 && <div className="text-center text-gray-400">Loading...</div>}
+                    {selectedAssistant && <div className="text-center text-gray-400">{selectedAssistant.name}</div>}
+                    {messages.length === 0 && <BlankChatMessage />}
                     {messages.map((m, idx) => (
                         <div
                             key={idx}
@@ -219,7 +226,7 @@ export default function ChatPage() {
 
 
             <div>
-                <AssistantSelector selected={selectedAssistant} onSelect={setSelectedAssistant}/>
+                <AssistantSelector selected={selectedAssistant?.id} onSelect={setSelectedAssistant}/>
             </div>
         </div>
     );

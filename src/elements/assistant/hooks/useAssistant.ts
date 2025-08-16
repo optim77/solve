@@ -5,12 +5,12 @@ import toast from "react-hot-toast";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
 
 
-interface Assistant {
+export interface Assistant {
     id: string;
     name: string;
     icon: string;
 }
-export const useAssistant = (selected: string) => {
+export const useAssistant = (selected?: string) => {
     const { user } = useSupabaseUser();
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     const [loading, setLoading] = useState(true);

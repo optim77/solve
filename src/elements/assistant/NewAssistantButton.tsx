@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddAssistantModal } from "@/elements/NewAssistantModal";
+import { AddAssistantModal } from "@/elements/assistant/NewAssistantModal";
 
 interface Props {
     onAdded?: () => void;

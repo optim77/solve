@@ -52,7 +52,7 @@ export default function ChatPage() {
                 setHasMore(false);
             }
         } catch {
-            toast.error("Wystąpił błąd pobierania rozmowy");
+            toast.error("Error fetching conversation");
         }
     };
 
@@ -66,9 +66,10 @@ export default function ChatPage() {
                 .order("created_at", { ascending: false })
                 .limit(LIMIT);
 
+
             if (error) {
                 console.log(error);
-                toast.error("Błąd pobierania wiadomości");
+                toast.error("Error fetching messages!");
                 return;
             }
 
@@ -101,7 +102,7 @@ export default function ChatPage() {
                 .limit(LIMIT);
 
             if (error) {
-                toast.error("Błąd pobierania starszych wiadomości");
+                toast.error("Error fetching messages!");
                 return;
             }
 
@@ -128,7 +129,7 @@ export default function ChatPage() {
     };
 
     const sendMessage = async () => {
-        if (!input.trim() || !conversationId) return;
+        if (!input.trim()) return;
 
         const currentAssistant = assistants.find((a) => a.id === selectedAssistant?.id);
         const newMessage: Message = { role: "user", content: input };
@@ -141,7 +142,7 @@ export default function ChatPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    conversationId,
+                    selectedChat,
                     assistantId: selectedAssistant,
                     messages: [
                         { role: "system", content: currentAssistant?.prompt || "" },
@@ -152,14 +153,14 @@ export default function ChatPage() {
             });
 
             if (!res.ok) {
-                toast.error("Błąd wysyłania wiadomości");
+                toast.error("Cannot send messages!");
                 return;
             }
 
             const text = await res.json();
             setMessages((prev) => [...prev, { role: "assistant", content: text.reply }]);
         } catch {
-            toast.error("Błąd połączenia z serwerem");
+            toast.error("Cannot connect to server");
         }
     };
 
@@ -170,9 +171,10 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
-
-    }, [selectedAssistant]);
-
+        if (selectedChat){
+            fetchLatestMessages(selectedChat);
+        }
+    }, [selectedChat]);
 
     return (
         <div className="grid grid-cols-3 gap-20">
@@ -186,7 +188,10 @@ export default function ChatPage() {
                     className="bg-gray-800 p-4 rounded-lg min-h-[400px] max-h-[800px] mb-4 flex flex-col gap-3 overflow-y-auto mt-10"
                 >
                     {loading && messages.length === 0 && <div className="text-center text-gray-400">Loading...</div>}
-                    {selectedAssistant && <div className="text-center text-gray-400">{selectedAssistant.name}</div>}
+                    {selectedAssistant ?
+                        <div className="text-center text-gray-400">Using {selectedAssistant.name} assistant</div>
+                        : <div className="text-center text-gray-400">Using default assistant.</div>
+                    }
                     {messages.length === 0 && <BlankChatMessage />}
                     {messages.map((m, idx) => (
                         <div

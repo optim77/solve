@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { createClient } from "@/lib/superbase/client";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
-
 
 export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) => {
     const [name, setName] = useState("");
     const [prompt, setPrompt] = useState("");
     const [icon, setIcon] = useState("");
     const [loading, setLoading] = useState(false);
+    const [models, setModels] = useState<string[]>([]);
+    const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
     const { user } = useSupabaseUser();
 
     const handleSave = async () => {
@@ -24,6 +25,7 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
                     name,
                     prompt,
                     icon,
+                    model: selectedModel,
                     user_id: user?.id,
                 },
             ]);
@@ -34,6 +36,7 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
             setName("");
             setPrompt("");
             setIcon("");
+            setSelectedModel("gpt-4o-mini");
             onAdded && onAdded();
             onClose();
         } catch (err) {
@@ -44,5 +47,23 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
         }
     };
 
-    return { name, setName, prompt, setPrompt, icon, setIcon, handleSave, loading };
-}
+    useEffect(() => {
+        fetch("/api/models")
+            .then((res) => res.json())
+            .then((data) => setModels(data));
+    }, []);
+
+    return {
+        name,
+        setName,
+        prompt,
+        setPrompt,
+        icon,
+        setIcon,
+        handleSave,
+        loading,
+        models,
+        selectedModel,
+        setSelectedModel
+    };
+};

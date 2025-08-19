@@ -62,6 +62,12 @@ export async function POST(req: Request) {
             messages,
         });
 
+        const list = await openai.models.list();
+
+        for await (const model of list) {
+            console.log(model);
+        }
+
         const reply = completion.choices[0].message.content || "";
 
         const userMessage = messages[messages.length - 1];

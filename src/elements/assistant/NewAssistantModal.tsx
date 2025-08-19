@@ -17,7 +17,10 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
         icon,
         setIcon,
         handleSave,
-        loading
+        loading,
+        models,
+        selectedModel,
+        setSelectedModel
     } = useNewAssistantModal(onClose, onAdded);
 
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -68,6 +71,17 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                             😀
                         </button>
                     </div>
+                    <select
+                        value={selectedModel}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                    >
+                        {models.map((model) => (
+                            <option key={model} value={model}>
+                                {model}
+                            </option>
+                        ))}
+                    </select>
 
                     {showEmojiPicker && (
                         <div className="mt-2">

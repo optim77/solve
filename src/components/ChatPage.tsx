@@ -179,24 +179,33 @@ export default function ChatPage() {
     return (
         <div className="grid grid-cols-3 gap-20">
             <div>
-                <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
+                <ChatSelector selected={selectedChat} onSelect={setSelectedChat}/>
             </div>
-            <div>
+
+            <div className="flex flex-col h-screen p-4">
                 <div
                     ref={chatContainerRef}
                     onScroll={handleScroll}
-                    className="bg-gray-800 p-4 rounded-lg min-h-[400px] max-h-[800px] mb-4 flex flex-col gap-3 overflow-y-auto mt-10"
+                    className="flex-1 border rounded-lg mb-4 p-4 flex flex-col gap-3 overflow-y-auto"
                 >
-                    {loading && messages.length === 0 && <div className="text-center text-gray-400">Loading...</div>}
-                    {selectedAssistant ?
-                        <div className="text-center text-gray-400">Using {selectedAssistant.name} assistant</div>
-                        : <div className="text-center text-gray-400">Using default assistant.</div>
-                    }
-                    {messages.length === 0 && <BlankChatMessage />}
+                    {loading && messages.length === 0 && (
+                        <div className="flex justify-center items-center">
+                            <div
+                                className=" border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                    {selectedAssistant ? (
+                        <div className="text-center text-gray-400 mt-2 mb-2">
+                            Using {selectedAssistant.name} assistant
+                        </div>
+                    ) : (
+                        <div className="text-center text-gray-400">Using default assistant.</div>
+                    )}
+                    {messages.length === 0 && <BlankChatMessage/>}
                     {messages.map((m, idx) => (
                         <div
                             key={idx}
-                            className={`max-w-xs p-3 rounded-lg text-sm ${
+                            className={`max-w-xs p-3 rounded-2xl text-sm ${
                                 m.role === "user"
                                     ? "bg-blue-500 text-white self-end"
                                     : m.role === "assistant"
@@ -208,7 +217,10 @@ export default function ChatPage() {
                         </div>
                     ))}
                     {loading && messages.length > 0 && (
-                        <div className="text-center text-gray-400 text-xs">Loading older messages...</div>
+                        <div className="flex justify-center items-center h-full">
+                            <div
+                                className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
                     )}
                 </div>
 
@@ -217,12 +229,12 @@ export default function ChatPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                        className="flex-1 p-2 rounded bg-gray-700 text-white"
+                        className="flex-1 p-3 rounded-full border  text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Type a message..."
                     />
                     <button
                         onClick={sendMessage}
-                        className="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-500"
+                        className="px-6 py-3 rounded-full border text-white font-medium hover:bg-blue-500 transition"
                     >
                         Send
                     </button>

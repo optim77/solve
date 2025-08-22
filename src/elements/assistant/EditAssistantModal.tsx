@@ -26,7 +26,10 @@ export const EditAssistantModal = ({
         setIcon,
         loading,
         handleSave,
-        handleDelete
+        handleDelete,
+        models,
+        selectedModel,
+        setSelectedModel
     } = useEditAssistantModal(assistantId, onClose, onEdited);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -76,6 +79,18 @@ export const EditAssistantModal = ({
                             😀
                         </button>
                     </div>
+
+                    <select
+                        value={selectedModel}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                    >
+                        {models.map((model) => (
+                            <option key={model} value={model}>
+                                {model}
+                            </option>
+                        ))}
+                    </select>
 
                     {showEmojiPicker && (
                         <div className="mt-2">

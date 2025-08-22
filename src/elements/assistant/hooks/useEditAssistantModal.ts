@@ -13,6 +13,8 @@ export const useEditAssistantModal = (
     const [prompt, setPrompt] = useState("");
     const [icon, setIcon] = useState("");
     const [loading, setLoading] = useState(false);
+    const [models, setModels] = useState<string[]>([]);
+    const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
     const { user } = useSupabaseUser();
 
     const fetchAssistant = async () => {
@@ -52,6 +54,7 @@ export const useEditAssistantModal = (
                     name,
                     prompt,
                     icon,
+                    model: selectedModel,
                 })
                 .eq("id", assistantId)
                 .eq("user_id", user?.id);
@@ -60,6 +63,7 @@ export const useEditAssistantModal = (
 
             toast.success("Assistant updated successfully");
             onEdited && onEdited();
+            setSelectedModel("gpt-4o-mini");
             onClose();
         } catch (err) {
             console.error(err);
@@ -102,6 +106,12 @@ export const useEditAssistantModal = (
         }
     }, [assistantId, user?.id]);
 
+    useEffect(() => {
+        fetch("/api/models")
+            .then((res) => res.json())
+            .then((data) => setModels(data));
+    }, []);
+
     return {
         name,
         setName,
@@ -111,6 +121,9 @@ export const useEditAssistantModal = (
         setIcon,
         loading,
         handleSave,
-        handleDelete
+        handleDelete,
+        models,
+        selectedModel,
+        setSelectedModel
     };
 };

@@ -19,8 +19,8 @@ export const ChatButton = ({chat, onSelect, isActive, onDelete}: Props) => {
                 onClick={() => onSelect(chat.id)}
                 className={`flex items-center gap-2 pt-4 pb-4 pl-4 rounded-lg transition-all duration-200 text-left w-full
                     ${isActive
-                    ? "bg-gray-800 border border-blue-500 shadow-lg"
-                    : "bg-gray-800 border border-gray-700 hover:border-blue-400"}
+                    ? "border border-blue-500 shadow-lg"
+                    : "border border-gray-700 hover:border-blue-400"}
                 `}
             >
 

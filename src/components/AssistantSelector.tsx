@@ -24,7 +24,11 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
 
     return (
         <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed right-0 top-0 h-full overflow-y-auto border-l-3">
-            {loading && <p className="text-gray-400 text-sm">Loading assistants...</p>}
+            {loading && (
+                <div className="flex justify-center items-center h-full">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            )}
 
             {!loading && memoizedAssistants.length === 0 && (
                 <p className="text-gray-400 text-sm">No assistants yet</p>
@@ -39,8 +43,10 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
                     onEdit={handleEdit}
                 />
             ))}
+            {!loading && (
+                <NewAssistantButton onAdded={fetchAssistants} />
+            )}
 
-            <NewAssistantButton onAdded={fetchAssistants} />
 
             {editId && (
                 <EditAssistantModal

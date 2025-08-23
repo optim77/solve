@@ -40,7 +40,6 @@ export const useNewAssistantModal = (onClose: () => void, onAdded?: () => void) 
             onAdded && onAdded();
             onClose();
         } catch (err) {
-            console.error(err);
             toast.error("Error while adding assistant");
         } finally {
             setLoading(false);

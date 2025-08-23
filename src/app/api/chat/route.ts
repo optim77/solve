@@ -38,9 +38,6 @@ export async function POST(req: Request) {
         }
 
         const {  selectedChat, assistantId, messages } = await req.json();
-        console.log("messages", messages);
-        console.log("assistantId", assistantId);
-        console.log("selectedChat", selectedChat);
         let convId = selectedChat;
 
         if (!convId) {

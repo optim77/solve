@@ -14,7 +14,10 @@ export default function ChatSelector({ selected, onSelect }: Props) {
         <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed left-0 top-0 h-full overflow-y-auto border-r-3">
             {!loading && (
                 <button
-                    className="flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200 border border-gray-700 hover:border-blue-400"
+                    onClick={() => onSelect("")}
+                    className={`flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200 border 
+    ${!selected ? "border-blue-500 shadow-lg" : "border-gray-700 hover:border-blue-400"}
+  `}
                 >
                     <BadgePlus/> New chat
                 </button>

@@ -9,6 +9,7 @@ import { createClient } from "@/lib/superbase/client";
 import { BlankChatMessage } from "@/elements/chat/BlankChatMessage";
 import ChatSelector from "@/components/ChatSelector";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
+import { useChat } from "@/elements/chat/hooks/useChat";
 
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
@@ -24,37 +25,7 @@ export default function ChatPage() {
     const [hasMore, setHasMore] = useState(true);
     const LIMIT = 20;
     const chatContainerRef = useRef<HTMLDivElement>(null);
-
-    const fetchLatestConversation = async () => {
-        try {
-            const { data, error } = await createClient()
-                .from("chats")
-                .select("id")
-                .eq("assistant_id", selectedAssistant)
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error) {
-                console.error(error);
-                toast.error("Błąd pobierania rozmowy");
-                return;
-            }
-
-            if (data?.id) {
-                setConversationId(data.id);
-                setMessages([]);
-                setHasMore(true);
-                await fetchLatestMessages(data.id);
-            } else {
-                setConversationId(null);
-                setMessages([]);
-                setHasMore(false);
-            }
-        } catch {
-            toast.error("Error fetching conversation");
-        }
-    };
+    const { fetchChats } = useChat(selectedChat);
 
     const fetchLatestMessages = async (convId: string) => {
         setLoading(true);
@@ -157,12 +128,19 @@ export default function ChatPage() {
                 return;
             }
 
-            const text = await res.json();
-            setMessages((prev) => [...prev, { role: "assistant", content: text.reply }]);
+            const { reply, conversationId } = await res.json();
+
+            if (!selectedChat && conversationId) {
+                setSelectedChat(conversationId);
+                await fetchChats();
+            }
+
+            setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
         } catch {
             toast.error("Cannot connect to server");
         }
     };
+
 
     const handleScroll = () => {
         if (chatContainerRef.current && chatContainerRef.current.scrollTop === 0 && hasMore && !loading) {

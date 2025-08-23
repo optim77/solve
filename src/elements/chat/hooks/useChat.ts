@@ -23,7 +23,7 @@ export const useChat = (selected: string) => {
                 .order("created_at", { ascending: false });
 
             if (error) {
-                toast.error("Failed to load assistants");
+                toast.error("Failed to load chats");
                 console.error(error);
                 return;
             }
@@ -33,20 +33,39 @@ export const useChat = (selected: string) => {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         fetchChats();
     }, [user?.id]);
 
-    const handleDelete = (chatId: string) => {
+    const handleDelete = async (chatId: string) => {
+        if (!chatId) return;
 
-    }
+        setChats((prev) => prev.filter((c) => c.id !== chatId));
+
+        try {
+            const { error } = await createClient()
+                .from("chats")
+                .delete()
+                .eq("id", chatId)
+                .eq("user_id", user?.id);
+
+            if (error) throw error;
+
+            toast.success("Chat deleted successfully");
+        } catch (err) {
+            console.error(err);
+            toast.error("Error while deleting chat");
+            fetchChats();
+        }
+    };
 
     const memoizedChats = useMemo(() => {
-        return chats.map(a => ({
+        return chats.map((a) => ({
             ...a,
-            isActive: a.id === selected
+            isActive: a.id === selected,
         }));
     }, [chats, selected]);
 
-    return { loading, memoizedChats, handleDelete };
-}
+    return { loading, memoizedChats, handleDelete, fetchChats };
+};

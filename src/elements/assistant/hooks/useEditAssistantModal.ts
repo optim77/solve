@@ -76,8 +76,6 @@ export const useEditAssistantModal = (
     const handleDelete = async () => {
         if (!assistantId) return;
 
-        if (!confirm("Are you sure you want to delete this assistant?")) return;
-
         try {
             setLoading(true);
 

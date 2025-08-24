@@ -9,6 +9,8 @@ export interface Assistant {
     id: string;
     name: string;
     icon: string;
+    prompt: string;
+    model: string;
 }
 export const useAssistant = (selected?: string) => {
     const { user } = useSupabaseUser();
@@ -25,7 +27,7 @@ export const useAssistant = (selected?: string) => {
         try {
             const { data, error } = await createClient()
                 .from("user_assistants")
-                .select("id, name, icon")
+                .select("id, name, icon, model, prompt")
                 .eq("user_id", user.id)
                 .order("created_at", { ascending: false });
 

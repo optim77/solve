@@ -5,6 +5,7 @@ interface AssistantProps {
     id: string;
     icon: string;
     name: string;
+    model: string;
 }
 
 interface Props {
@@ -39,13 +40,18 @@ export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) 
                 >
                     {assistant.name}
                 </span>
+                <p
+                    className={`text-sm font-medium truncate justify-end text-gray-400` }
+                >
+                    {assistant.model}
+                </p>
             </button>
 
             <button
                 onClick={() => onEdit(assistant.id)}
                 className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
             >
-                <Pencil size={14} className="text-gray-400"/>
+            <Pencil size={14} className="text-gray-400"/>
             </button>
 
         </div>

@@ -102,7 +102,6 @@ export default function ChatPage() {
     const sendMessage = async () => {
         if (!input.trim()) return;
 
-        const currentAssistant = assistants.find((a) => a.id === selectedAssistant?.id);
         const newMessage: Message = { role: "user", content: input };
 
         setMessages((prev) => [...prev, newMessage]);
@@ -114,12 +113,13 @@ export default function ChatPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     selectedChat,
-                    assistantId: selectedAssistant,
-                    messages: [
-                        { role: "system", content: currentAssistant?.prompt || "" },
-                        ...messages,
-                        newMessage,
-                    ],
+                    assistant: {
+                        id: selectedAssistant?.id,
+                        model: selectedAssistant?.model || "gpt-4o-mini",
+                        prompt: selectedAssistant?.prompt || "",
+                        name: selectedAssistant?.name || "Default",
+                    },
+                    messages: [...messages, newMessage],
                 }),
             });
 
@@ -151,14 +151,16 @@ export default function ChatPage() {
     useEffect(() => {
         if (selectedChat){
             fetchLatestMessages(selectedChat);
+        } else {
+            setMessages([]);
         }
     }, [selectedChat]);
 
     return (
         <div className="grid grid-cols-3 gap-20">
-            <div>
-                <ChatSelector selected={selectedChat} onSelect={setSelectedChat}/>
-            </div>
+                <div>
+                    <ChatSelector selected={selectedChat} onSelect={setSelectedChat}/>
+                </div>
 
             <div className="flex flex-col h-screen p-4">
                 <div

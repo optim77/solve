@@ -37,7 +37,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const {  selectedChat, assistantId, messages } = await req.json();
+        const {  selectedChat, assistant, messages } = await req.json();
         let convId = selectedChat;
 
         if (!convId) {
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
                 .from("chats")
                 .insert({
                     user_id: user.id,
-                    assistant_id: assistantId ? assistantId : null,
+                    assistant_id: assistant?.id ?? null,
                     title: messages[messages.length - 1]?.content?.slice(0, 50) || "New chat",
                 })
                 .select()
@@ -54,9 +54,15 @@ export async function POST(req: Request) {
             convId = conv.id;
         }
 
+        const systemPrompt = assistant?.prompt || "";
+        const model = assistant?.model || "gpt-4o-mini";
+
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages,
+            model,
+            messages: [
+                { role: "system", content: systemPrompt },
+                ...messages,
+            ],
         });
 
         const list = await openai.models.list();
@@ -75,7 +81,7 @@ export async function POST(req: Request) {
                 chat_id: convId,
                 user_id: user.id,
                 role: "user",
-                assistant_id: assistantId ?? null,
+                assistant_id: assistant?.id ?? null,
                 content: userMessage.content,
             })
             .select();
@@ -87,7 +93,7 @@ export async function POST(req: Request) {
         await supabase.from("messages").insert({
             chat_id: convId,
             user_id: user.id,
-            assistant_id: assistantId ?? null,
+            assistant_id: assistant?.id ?? null,
             role: "assistant",
             content: reply,
         });

@@ -1,13 +1,16 @@
 import { useChat } from "@/elements/chat/hooks/useChat";
 import { ChatButton } from "@/elements/chat/ChatButton";
 import { BadgePlus } from "lucide-react";
+import UserBar from "@/elements/user/UserBar";
+import { useChatContext } from "@/components/context/ChatProvider";
 
 interface Props {
     selected: string;
     onSelect: (id: string) => void;
 }
 export default function ChatSelector({ selected, onSelect }: Props) {
-    const { loading, memoizedChats, handleDelete } = useChat(selected);
+    const { memoizedChats, handleDelete, loading } = useChatContext();
+
 
     return (
         <div className="flex flex-col h-full w-80 fixed left-0 top-0 border-r p-3">
@@ -46,10 +49,7 @@ export default function ChatSelector({ selected, onSelect }: Props) {
                 ))}
             </div>
 
-            <div className="sticky bottom-0 border-t pt-3 mt-3 flex items-center justify-between text-sm text-gray-700">
-                <span className="font-medium">Q</span>
-                <span className="text-blue-600 font-bold">123</span>
-            </div>
+            <UserBar />
         </div>
     );
 }

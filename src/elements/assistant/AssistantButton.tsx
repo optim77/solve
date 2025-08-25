@@ -6,6 +6,7 @@ interface AssistantProps {
     icon: string;
     name: string;
     model: string;
+    prompt: string;
 }
 
 interface Props {

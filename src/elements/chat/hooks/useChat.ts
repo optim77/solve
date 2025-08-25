@@ -28,7 +28,7 @@ export const useChat = (selected: string) => {
                 return;
             }
 
-            setChats(data || []);
+            if (data) setChats(data);
         } finally {
             setLoading(false);
         }
@@ -60,6 +60,10 @@ export const useChat = (selected: string) => {
         }
     };
 
+    const addChat = (chat: Chat) => {
+        setChats((prev) => [chat, ...prev]);
+    };
+
     const memoizedChats = useMemo(() => {
         return chats.map((a) => ({
             ...a,
@@ -67,5 +71,5 @@ export const useChat = (selected: string) => {
         }));
     }, [chats, selected]);
 
-    return { loading, memoizedChats, handleDelete, fetchChats };
+    return { loading, memoizedChats, handleDelete, fetchChats, addChat };
 };

@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import AssistantSelector from "@/components/AssistantSelector";
-import { assistants } from "@/data/assistants";
 import toast from "react-hot-toast";
 import Markdown from "react-markdown";
 import { createClient } from "@/lib/superbase/client";
 import { BlankChatMessage } from "@/elements/chat/BlankChatMessage";
 import ChatSelector from "@/components/ChatSelector";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
-import { useChat } from "@/elements/chat/hooks/useChat";
+import { useChatContext } from "@/components/context/ChatProvider";
 
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
@@ -25,7 +24,7 @@ export default function ChatPage() {
     const [hasMore, setHasMore] = useState(true);
     const LIMIT = 20;
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const { fetchChats } = useChat(selectedChat);
+    const { fetchChats, addChat } = useChatContext();
 
     const fetchLatestMessages = async (convId: string) => {
         setLoading(true);
@@ -132,7 +131,13 @@ export default function ChatPage() {
 
             if (!selectedChat && conversationId) {
                 setSelectedChat(conversationId);
-                await fetchChats();
+
+                addChat({
+                    id: conversationId,
+                    title: newMessage.content.slice(0, 50) || "New chat",
+                });
+
+                fetchChats();
             }
 
             setMessages((prev) => [...prev, { role: "assistant", content: reply }]);

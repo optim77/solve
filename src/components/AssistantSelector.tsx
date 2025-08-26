@@ -9,8 +9,6 @@ interface Props {
     onSelect: (assistant: Assistant) => void;
 }
 
-
-
 export default function AssistantSelector({ selected, onSelect }: Props) {
     const {
         loading,

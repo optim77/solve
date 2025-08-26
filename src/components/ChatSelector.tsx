@@ -1,4 +1,3 @@
-import { useChat } from "@/elements/chat/hooks/useChat";
 import { ChatButton } from "@/elements/chat/ChatButton";
 import { BadgePlus } from "lucide-react";
 import UserBar from "@/elements/user/UserBar";

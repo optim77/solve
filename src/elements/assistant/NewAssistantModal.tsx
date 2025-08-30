@@ -1,5 +1,5 @@
 import { useState } from "react";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 import { useNewAssistantModal } from "@/elements/assistant/hooks/useNewAssistantModal";
 
 interface Props {
@@ -96,7 +96,7 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                     {showEmojiPicker && (
                         <div className="mt-2">
                             <EmojiPicker
-                                theme='dark'
+                                theme={Theme.DARK}
                                 onEmojiClick={(emojiData: EmojiClickData) => {
                                     setIcon(emojiData.emoji);
                                     setShowEmojiPicker(false);

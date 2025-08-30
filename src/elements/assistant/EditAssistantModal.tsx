@@ -36,13 +36,13 @@ export const EditAssistantModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
             <div
-                className="absolute inset-0 bg-black bg-opacity-60"
+                className="absolute inset-0 bg-opacity-60"
                 onClick={onClose}
             ></div>
 
-            <div className="relative z-10 w-full max-w-md p-6 bg-gray-900 rounded-lg shadow-lg">
+            <div className="relative z-10 w-full max-w-md p-6 border-1 rounded-lg shadow-lg">
                 <h2 className="text-xl font-semibold text-white mb-4">
                     Edit assistant
                 </h2>
@@ -53,14 +53,14 @@ export const EditAssistantModal = ({
                         placeholder="Assistant name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                        className="w-full p-2 rounded border text-white"
                     />
 
                     <textarea
                         placeholder="Prompt"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white min-h-[100px]"
+                        className="w-full p-2 rounded border border-gray-700 text-white min-h-[100px]"
                     />
 
                     <div className="flex items-center gap-2">
@@ -69,12 +69,12 @@ export const EditAssistantModal = ({
                             placeholder="Icon (emoji)"
                             value={icon}
                             onChange={(e) => setIcon(e.target.value)}
-                            className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                            className="flex-1 p-2 rounded  border border-gray-700 text-white"
                         />
                         <button
                             type="button"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
+                            className="px-3 py-2 hover:bg-gray-600 rounded text-white border-2"
                         >
                             😀
                         </button>
@@ -83,10 +83,10 @@ export const EditAssistantModal = ({
                     <select
                         value={selectedModel}
                         onChange={(e) => setSelectedModel(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                        className="w-full p-2 rounded  border  "
                     >
                         {models.map((model) => (
-                            <option key={model} value={model}>
+                            <option key={model} value={model} className="bg-black">
                                 {model}
                             </option>
                         ))}

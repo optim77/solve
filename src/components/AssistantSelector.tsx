@@ -31,7 +31,9 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
             {!loading && memoizedAssistants.length === 0 && (
                 <p className="text-gray-400 text-sm">No assistants yet</p>
             )}
-
+            {!loading && (
+                <NewAssistantButton onAdded={fetchAssistants} />
+            )}
             {memoizedAssistants.map((assistant) => (
                 <AssistantButton
                     key={assistant.id}
@@ -41,9 +43,7 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
                     onEdit={handleEdit}
                 />
             ))}
-            {!loading && (
-                <NewAssistantButton onAdded={fetchAssistants} />
-            )}
+
 
 
             {editId && (

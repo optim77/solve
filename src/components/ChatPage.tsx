@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { useEffect, useRef, useState } from "react";
 import AssistantSelector from "@/components/AssistantSelector";
 import toast from "react-hot-toast";
@@ -10,11 +9,9 @@ import ChatSelector from "@/components/ChatSelector";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
 import { useChatContext } from "@/components/context/ChatProvider";
 
-
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
 export default function ChatPage() {
-
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [selectedAssistant, setSelectedAssistant] = useState<Assistant>();
@@ -26,7 +23,7 @@ export default function ChatPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { fetchChats, addChat } = useChatContext();
 
-    //ulep
+    // Ulepienie ciemnego motywu
     useEffect(() => {
         document.documentElement.classList.add("dark");
         return () => {
@@ -43,7 +40,6 @@ export default function ChatPage() {
                 .eq("chat_id", convId)
                 .order("created_at", { ascending: false })
                 .limit(LIMIT);
-
 
             if (error) {
                 console.log(error);
@@ -111,8 +107,14 @@ export default function ChatPage() {
 
         const newMessage: Message = { role: "user", content: input };
 
+        // Dodaj wiadomość użytkownika
         setMessages((prev) => [...prev, newMessage]);
-        setInput("");
+
+        // Dodaj wiadomość "loading" dla odpowiedzi asystenta
+        const loadingMessage: Message = { role: "assistant", content: "..." };
+        setMessages((prev) => [...prev, loadingMessage]);
+
+        setInput(""); // Resetuj pole wejściowe
 
         try {
             const res = await fetch("/api/chat", {
@@ -139,7 +141,6 @@ export default function ChatPage() {
 
             if (!selectedChat && conversationId) {
                 setSelectedChat(conversationId);
-
                 addChat({
                     id: conversationId,
                     title: newMessage.content.slice(0, 50) || "New chat",
@@ -148,12 +149,15 @@ export default function ChatPage() {
                 fetchChats();
             }
 
+            // Usuwamy wiadomość "loading" i dodajemy odpowiedź asystenta
+            setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
             setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
         } catch {
             toast.error("Cannot connect to server");
+            // Usuwamy wiadomość "loading" w przypadku błędu
+            setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
         }
     };
-
 
     const handleScroll = () => {
         if (chatContainerRef.current && chatContainerRef.current.scrollTop === 0 && hasMore && !loading) {
@@ -162,7 +166,7 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
-        if (selectedChat){
+        if (selectedChat) {
             fetchLatestMessages(selectedChat);
         } else {
             setMessages([]);
@@ -171,9 +175,9 @@ export default function ChatPage() {
 
     return (
         <div className="grid grid-cols-3 gap-20">
-                <div>
-                    <ChatSelector selected={selectedChat} onSelect={setSelectedChat}/>
-                </div>
+            <div>
+                <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
+            </div>
 
             <div className="flex flex-col h-screen p-4">
                 <div
@@ -183,8 +187,7 @@ export default function ChatPage() {
                 >
                     {loading && messages.length === 0 && (
                         <div className="flex justify-center items-center">
-                            <div
-                                className=" border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     )}
                     {selectedAssistant ? (
@@ -194,7 +197,7 @@ export default function ChatPage() {
                     ) : (
                         <div className="text-center text-gray-400">Using default assistant.</div>
                     )}
-                    {messages.length === 0 && <BlankChatMessage/>}
+                    {messages.length === 0 && <BlankChatMessage />}
                     {messages.map((m, idx) => (
                         <div
                             key={idx}
@@ -211,8 +214,7 @@ export default function ChatPage() {
                     ))}
                     {loading && messages.length > 0 && (
                         <div className="flex justify-center items-center h-full">
-                            <div
-                                className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     )}
                 </div>
@@ -222,7 +224,7 @@ export default function ChatPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                        className="flex-1 p-3 rounded-full border  text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 p-3 rounded-full border text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Type a message..."
                     />
                     <button
@@ -234,9 +236,8 @@ export default function ChatPage() {
                 </div>
             </div>
 
-
             <div>
-                <AssistantSelector selected={selectedAssistant?.id} onSelect={setSelectedAssistant}/>
+                <AssistantSelector selected={selectedAssistant?.id} onSelect={setSelectedAssistant} />
             </div>
         </div>
     );

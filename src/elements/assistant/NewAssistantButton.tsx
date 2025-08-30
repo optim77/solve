@@ -17,7 +17,7 @@ export const NewAssistantButton = ({ onAdded }: Props) => {
                 onClick={() => setIsOpen(true)}
                 className="flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200     border border-gray-700 hover:border-blue-400"
             >
-                <BadgePlus />
+                <BadgePlus /> New assistant
             </button>
 
             <AddAssistantModal isOpen={isOpen} onClose={() => setIsOpen(false)} onAdded={onAdded} />

@@ -19,7 +19,7 @@ export default function ChatSelector({ selected, onSelect }: Props) {
                 {!loading && (
                     <button
                         onClick={() => onSelect("")}
-                        className={`flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200 border 
+                        className={`flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200 border cursor-pointer
               ${!selected ? "border-blue-500 shadow-lg" : "border-gray-700 hover:border-blue-400"}
             `}
                     >

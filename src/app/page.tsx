@@ -2,6 +2,7 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { AuthButton } from "@/components/auth/AuthButton";
 
 export default function HomePage() {
+
     return (
         <>
             <main className="min-h-screen flex flex-col items-center">
@@ -40,7 +41,6 @@ export default function HomePage() {
                 </div>
             </main>
 
-            {/*<Navbar />*/}
         </>
     );
 }

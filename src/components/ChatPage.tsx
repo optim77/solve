@@ -26,6 +26,14 @@ export default function ChatPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { fetchChats, addChat } = useChatContext();
 
+    //ulep
+    useEffect(() => {
+        document.documentElement.classList.add("dark");
+        return () => {
+            document.documentElement.classList.remove("dark");
+        };
+    }, []);
+
     const fetchLatestMessages = async (convId: string) => {
         setLoading(true);
         try {

@@ -28,13 +28,22 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            {/* Modal content */}
             <div
-                className="absolute inset-0 bg-black bg-opacity-50"
-                onClick={onClose}
-            ></div>
+                className="relative border rounded-2xl shadow-lg w-full max-w-md p-6"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    onClick={onClose}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-200 cursor-pointer"
+                >
+                    ✕
+                </button>
 
-            <div className="relative z-10 w-full max-w-md p-6 bg-gray-900 rounded-lg shadow-lg">
                 <h2 className="text-xl font-semibold text-white mb-4">
                     Add a new assistant
                 </h2>
@@ -45,14 +54,14 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                         placeholder="Assistant name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                        className="w-full p-2 rounded-lg border text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                     <textarea
                         placeholder="Prompt"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white min-h-[100px]"
+                        className="w-full p-2 rounded-lg border border-gray-700 text-white min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                     <div className="flex items-center gap-2">
@@ -61,20 +70,21 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                             placeholder="Icon (emoji)"
                             value={icon}
                             onChange={(e) => setIcon(e.target.value)}
-                            className="flex-1 p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                            className="flex-1 p-2 rounded-lg border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                             type="button"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
+                            className="px-3 py-2 hover:bg-gray-600 rounded-lg text-white"
                         >
                             😀
                         </button>
                     </div>
+
                     <select
                         value={selectedModel}
                         onChange={(e) => setSelectedModel(e.target.value)}
-                        className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-white"
+                        className="w-full p-2 rounded-lg bg-black border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         {models.map((model) => (
                             <option key={model} value={model}>
@@ -86,6 +96,7 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                     {showEmojiPicker && (
                         <div className="mt-2">
                             <EmojiPicker
+                                theme='dark'
                                 onEmojiClick={(emojiData: EmojiClickData) => {
                                     setIcon(emojiData.emoji);
                                     setShowEmojiPicker(false);
@@ -94,17 +105,17 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                         </div>
                     )}
 
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 pt-2">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
+                            className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
                         >
                             {loading ? "Saving..." : "Add"}
                         </button>

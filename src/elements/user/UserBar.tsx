@@ -1,48 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/superbase/client";
 import { createPortal } from "react-dom";
+import { useUserBar } from "@/elements/user/hooks/useUserBar";
+import { usePlans } from "@/elements/user/hooks/usePlans";
+import { useState } from "react";
+import { useCredits } from "@/elements/user/hooks/useCredits";
 
-interface Profile {
-    name: string;
-    credits: number;
-}
+type Item = "subscription" | "credits";
 
 export default function UserBar() {
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [showSettings, setShowSettings] = useState(false);
-    const [showPlans, setShowPlans] = useState(false);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const supabase = createClient();
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                setLoading(false);
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from("profiles")
-                .select("name, credits")
-                .eq("user_id", user.id)
-                .single();
-
-            if (!error && data) {
-                setProfile({
-                    name: data.name || user.email || "Anonymous",
-                    credits: data.credits ?? 0,
-                });
-            }
-
-            setLoading(false);
-        };
-
-        fetchUser();
-    }, []);
+    const { profile, loading, setShowSettings, showSettings, setShowPlans, showPlans } = useUserBar();
+    const { plans, loadingPlan } = usePlans();
+    const { credits, loadingCredits } = useCredits();
+    const [item, setItem] = useState<Item>("subscription");
 
     if (loading) {
         return (
@@ -105,11 +75,92 @@ export default function UserBar() {
                     onClick={() => setShowPlans(false)}
                 >
                     <div
-                        className=" border-3 rounded-2xl shadow-lg w-96 p-6 relative"
+                        className=" border-3 rounded-2xl shadow-lg w-300 p-6 relative"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h2 className="text-lg font-semibold mb-4">Plany subskrypcyjne</h2>
-                        <p>Tu możesz wyświetlić dostępne plany i upgrade.</p>
+                        <h1 className="text-3xl font-semibold mb-4 text-center">Manage your Solve purchase</h1>
+                        <p className=" font-semibold mb-4 text-center">Select the plan or credits that best fits your
+                            needs</p>
+                        <div className="flex justify-center mb-5">
+                            <div className="flex items-center me-4">
+                                <input id="inline-radio"
+                                       type="radio"
+                                       value=""
+                                       name="inline-radio-group"
+                                       checked={item == "subscription"}
+                                       onClick={() => {
+                                           setItem("subscription")
+                                       }}
+                                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                                <label htmlFor="inline-radio"
+                                       className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Subscription</label>
+                            </div>
+                            <div className="flex items-center me-4">
+                                <input id="inline-2-radio"
+                                       type="radio"
+                                       value=""
+                                       name="inline-radio-group"
+                                       checked={item == "credits"}
+                                       onClick={() => {
+                                           setItem("credits")
+                                       }}
+                                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                                <label htmlFor="inline-2-radio"
+                                       className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Credit</label>
+                            </div>
+                        </div>
+                        {item === "subscription" && (
+                            <>
+
+                                <div className="flex justify-center mb-5">
+                                    {!loadingPlan && (
+                                        plans.map(plan => (
+                                            <div key={plan.id} className="p-4 border rounded-lg mb-2 m-5 text-center">
+                                                <h3 className="text-lg font-semibold">{plan.name}</h3>
+                                                <span className="text-blue-500 font-bold ">${plan.price}/month</span>
+                                                <br/>
+                                                <button
+                                                    className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r
+                                                    from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200
+                                                    hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200
+                                                    dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5
+                                                    text-center me-2 mb-2">
+                                                    Subscribe
+                                                </button>
+                                                <div
+                                                    className="text-sm mt-5"
+                                                    dangerouslySetInnerHTML={{__html: plan.description}}
+                                                />
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </>
+                        )}
+
+
+                        {item === "credits" && (
+                            <div className="flex justify-center mb-5">
+                                {!loadingCredits && (
+                                    credits.map(credit => (
+                                        <div key={credit.id} className="p-4 border rounded-lg mb-2 m-5 text-center">
+                                            <h3 className="text-blue-500 font-bold ">{credit.credits} credits</h3>
+                                            <br/>
+                                            <button
+                                                className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r
+                                                from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200
+                                                hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200
+                                                dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5
+                                                text-center me-2 mb-2">
+                                                Purchase
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+
+
                         <button
                             onClick={() => setShowPlans(false)}
                             className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"

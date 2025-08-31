@@ -23,7 +23,7 @@ export default function ChatPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { fetchChats, addChat } = useChatContext();
 
-    // Ulepienie ciemnego motywu
+    // ulep
     useEffect(() => {
         document.documentElement.classList.add("dark");
         return () => {
@@ -107,14 +107,12 @@ export default function ChatPage() {
 
         const newMessage: Message = { role: "user", content: input };
 
-        // Dodaj wiadomość użytkownika
         setMessages((prev) => [...prev, newMessage]);
 
-        // Dodaj wiadomość "loading" dla odpowiedzi asystenta
         const loadingMessage: Message = { role: "assistant", content: "..." };
         setMessages((prev) => [...prev, loadingMessage]);
 
-        setInput(""); // Resetuj pole wejściowe
+        setInput("");
 
         try {
             const res = await fetch("/api/chat", {
@@ -149,12 +147,10 @@ export default function ChatPage() {
                 fetchChats();
             }
 
-            // Usuwamy wiadomość "loading" i dodajemy odpowiedź asystenta
             setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
             setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
         } catch {
             toast.error("Cannot connect to server");
-            // Usuwamy wiadomość "loading" w przypadku błędu
             setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
         }
     };
@@ -225,7 +221,7 @@ export default function ChatPage() {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                         className="flex-1 p-3 rounded-full border text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Type a message..."
+                        placeholder="Message"
                     />
                     <button
                         onClick={sendMessage}

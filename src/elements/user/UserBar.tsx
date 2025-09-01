@@ -5,6 +5,8 @@ import { useUserBar } from "@/elements/user/hooks/useUserBar";
 import { usePlans } from "@/elements/user/hooks/usePlans";
 import { useState } from "react";
 import { useCredits } from "@/elements/user/hooks/useCredits";
+import { usePayment } from "@/elements/user/hooks/usePayment";
+
 
 type Item = "subscription" | "credits";
 
@@ -12,6 +14,7 @@ export default function UserBar() {
     const { profile, loading, setShowSettings, showSettings, setShowPlans, showPlans } = useUserBar();
     const { plans, loadingPlan } = usePlans();
     const { credits, loadingCredits } = useCredits();
+    const { handleCheckout } = usePayment();
     const [item, setItem] = useState<Item>("subscription");
 
     if (loading) {
@@ -120,6 +123,7 @@ export default function UserBar() {
                                                 <span className="text-blue-500 font-bold ">${plan.price}/month</span>
                                                 <br/>
                                                 <button
+                                                    onClick={() => handleCheckout(plan.id, "subscription")}
                                                     className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r
                                                     from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200
                                                     hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200
@@ -147,6 +151,7 @@ export default function UserBar() {
                                             <h3 className="text-blue-500 font-bold ">{credit.credits} credits</h3>
                                             <br/>
                                             <button
+                                                onClick={() => handleCheckout(credit.id, "credit")}
                                                 className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r
                                                 from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200
                                                 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200

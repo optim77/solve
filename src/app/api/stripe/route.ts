@@ -3,6 +3,14 @@ import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/superbase/server";
 
+interface Product {
+    id: string;
+    stripe_product: {
+        product_id: string;
+        price_id: string;
+    }
+}
+
 export async function POST(req: Request) {
     try {
         const headersList = await headers();
@@ -12,11 +20,13 @@ export async function POST(req: Request) {
 
         const supabase = await createClient();
 
-        let product;
+        const { data, error } = await supabase.auth.getUser();
+
+        let product: Product;
         if (type === "subscription") {
             const { data, error } = await supabase
                 .from("plans")
-                .select("id, stripe_price_id")
+                .select('id, stripe_product(product_id, price_id)')
                 .eq("id", productId)
                 .single();
 
@@ -25,7 +35,7 @@ export async function POST(req: Request) {
         } else if (type === "credit") {
             const { data, error } = await supabase
                 .from("credits")
-                .select("id, stripe_price_id")
+                .select("id, stripe_product(product_id, price_id)")
                 .eq("id", productId)
                 .single();
 
@@ -35,12 +45,17 @@ export async function POST(req: Request) {
             throw new Error("Invalid product type");
         }
 
-        const price = await stripe.prices.retrieve(product.stripe_price_id);
+        const price = await stripe.prices.retrieve(product.stripe_product.price_id);
         const mode = price.recurring ? "subscription" : "payment";
 
         const session = await stripe.checkout.sessions.create({
-            line_items: [{ price: product.stripe_price_id, quantity: 1 }],
+            line_items: [{ price: product.stripe_product.price_id, quantity: 1 }],
             mode,
+            client_reference_id: data.user?.id,
+            metadata: {
+                productId,
+                type
+            },
             success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/protected/chat`,
         });

@@ -60,6 +60,8 @@ export async function POST(req: Request) {
             cancel_url: `${origin}/protected/chat`,
         });
 
+
+
         return NextResponse.json({ url: session.url });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

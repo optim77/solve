@@ -1,5 +1,5 @@
 export const usePayment = () => {
-    const handleCheckout = async (productId: string, type: "subscription" | "credit") => {
+    const handleCheckout = async (productId: string, type: "subscription" | "credits") => {
         try {
             const res = await fetch("/api/stripe", {
                 method: "POST",

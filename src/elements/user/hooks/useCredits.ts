@@ -1,11 +1,8 @@
     import { useEffect, useState } from "react";
     import { createClient } from "@/lib/superbase/client";
+    import { Credits } from "@/elements/user/types/types";
 
-    export interface Credits {
-        id: string;
-        credits: number;
-        price: number;
-    }
+
 
     export const useCredits = () => {
         const [credits, setCredits] = useState<Credits[]>([]);

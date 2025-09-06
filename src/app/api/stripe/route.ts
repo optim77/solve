@@ -63,7 +63,8 @@ export async function POST(req: Request) {
 
 
         return NextResponse.json({ url: session.url });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+        const error = err as Error;
+        console.error("Webhook error:", error.message);
     }
 }

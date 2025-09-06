@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
-
-export interface Plan {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-}
+import { Plan } from "@/elements/user/types/types";
 
 export const usePlans = () => {
     const [plans, setPlans] = useState<Plan[]>([]);
-    const [loadingPlan, setLoadingPlan] = useState(true);
+    const [loadingPlans, setLoadingPlans] = useState(true);
 
     useEffect(() => {
         const fetchPlans = async () => {
@@ -26,12 +20,12 @@ export const usePlans = () => {
                 setPlans(data);
             }
 
-            setLoadingPlan(false);
+            setLoadingPlans(false);
         }
         fetchPlans();
     }, []);
 
 
-    return { plans, loadingPlan };
+    return { plans, loadingPlans };
 
 }

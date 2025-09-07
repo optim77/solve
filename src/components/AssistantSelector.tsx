@@ -21,7 +21,7 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
     } = useAssistant(selected);
 
     return (
-        <div className="flex flex-col gap-2 p-3 rounded-lg w-80 fixed right-0 top-0 h-full overflow-y-auto border-l-3">
+        <div className="flex flex-col gap-2 p-3  w-80 fixed right-0 top-0 h-full overflow-y-auto border-l">
             {loading && (
                 <div className="flex justify-center items-center h-full">
                     <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>

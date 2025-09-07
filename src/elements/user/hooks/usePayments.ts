@@ -12,24 +12,52 @@ export const usePayments = () => {
     const fetchPurchases = async () => {
         const { data, error } = await createClient()
             .from("purchase")
-            .select("id, created_at, stripe_product(product_id, price_id), checkout_session_id")
-            .eq("user_id", user.id)
-            .select();
+            .select(`
+              id,
+              created_at,
+              checkout_session_id,
+              credits:credits_id (
+                id,
+                credits,
+                price
+              ),
+              plans:plans_id (
+                id,
+                name,
+                price
+              )
+            `)
+            .eq("user_id", user.id);
+
         if (error || !data) throw new Error(error?.message);
-        console.log("p", data);
+
+        console.log("purchases", data);
         setPayments(data);
-    }
+    };
 
     const fetchSubscriptions = async () => {
         const { data, error } = await createClient()
             .from("subscriptions")
-            .select("id, created_at, months, active, plans:plans(name, id)")
+            .select(`
+              id,
+              created_at,
+              months,
+              active,
+              plans:plans (
+                id,
+                name,
+                price,
+                description
+              )
+            `)
             .eq("user_id", user.id)
-            .select()
+            .eq("active", true);
+
         if (error || !data) throw new Error(error?.message);
+
         console.log("sub", data);
         setSubscription(data);
-    }
+    };
 
     useEffect(() => {
         fetchPurchases();

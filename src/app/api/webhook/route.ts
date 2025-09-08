@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
                 if (session.mode === "subscription") {
                     const { data: sub, error: subError } = await supabase
-                        .from("subscriptions")
+                        .from("profiles")
                         .select("months")
                         .eq("user_id", session.client_reference_id)
                         .maybeSingle();
@@ -43,13 +43,14 @@ export async function POST(req: Request) {
                     const monthsCounter = sub?.months ? sub.months + 1 : 1;
 
                     const { error: upsertError } = await supabase
-                        .from("subscriptions")
+                        .from("profiles")
                         .upsert(
                             {
                                 user_id: session.client_reference_id,
                                 plan_id: session.metadata.productId,
                                 months: monthsCounter,
-                                active: true,
+                                active_sub: true,
+                                renewal_date: new Date().toISOString()
                             },
                             {
                                 onConflict: "user_id",

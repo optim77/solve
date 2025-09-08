@@ -1,6 +1,5 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { useUserBar } from "@/elements/user/hooks/useUserBar";
 import { usePlans } from "@/elements/user/hooks/usePlans";
 import { useState } from "react";
@@ -9,10 +8,20 @@ import { usePayment } from "@/elements/user/hooks/usePayment";
 import PlansModal from "@/elements/user/elements/PlansModal";
 import { Item } from "@/elements/user/types/types";
 import { usePayments } from "@/elements/user/hooks/usePayments";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/elements/user/hooks/useLogout";
+import { CreditCard, LogOut, Settings } from "lucide-react";
+import { PaymentsModal } from "@/elements/user/elements/PaymentsModal";
 
 export default function UserBar() {
-    const { profile, loading, setShowSettings, showSettings, setShowPlans, showPlans } = useUserBar();
-    const { payments, subscriptions } = usePayments();
+    const { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans } = useUserBar();
+    const { logout } = useLogout();
+    const { payments, subscriptions, loadingPayments, loadingSubscriptions } = usePayments(profile?.plans.id, profile?.active_sub);
     const { plans, loadingPlans } = usePlans();
     const { credits, loadingCredits } = useCredits();
     const { handleCheckout } = usePayment();
@@ -37,12 +46,15 @@ export default function UserBar() {
     return (
         <>
             <div className="sticky bottom-0 border-t pt-3 mt-3 flex items-center justify-between text-sm text-gray-700">
-                <span
-                    className="font-medium text-white cursor-pointer hover:underline"
-                    onClick={() => setShowSettings(true)}
-                >
-                    {profile.name}
-                </span>
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="text-white cursor-pointer hover:underline">{profile.name}</DropdownMenuTrigger>
+                    <DropdownMenuContent className="p-3">
+                        <DropdownMenuItem onClick={() => setShowPayments(true)}><CreditCard /> Payments</DropdownMenuItem>
+                        <DropdownMenuItem><Settings /> Settings</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => logout()}><LogOut /> Logout</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
                 <span
                     className="text-blue-600 font-bold cursor-pointer hover:underline"
                     onClick={() => setShowPlans(true)}
@@ -51,27 +63,14 @@ export default function UserBar() {
                 </span>
             </div>
 
-            {showSettings && createPortal(
-                <div
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999]"
-                    onClick={() => setShowSettings(false)}
-                >
-                    <div
-                        className=" border-3 rounded-2xl shadow-lg w-96 p-6 relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 className="text-lg font-semibold mb-4">Ustawienia</h2>
-                        <p>Tu w przyszłości możesz dać np. zmianę hasła, avatar itp.</p>
-                        <button
-                            onClick={() => setShowSettings(false)}
-                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                </div>,
-                document.body
-            )}
+            <PaymentsModal
+                show={showPayments}
+                onClose={() => setShowPayments(false)}
+                subscriptions={subscriptions}
+                payments={payments}
+                loadingPayment={loadingPayments}
+                loadingSubscription={loadingSubscriptions}
+            />
 
             <PlansModal
                 show={showPlans}
@@ -83,6 +82,7 @@ export default function UserBar() {
                 loadingPlans={loadingPlans}
                 loadingCredits={loadingCredits}
                 handleCheckout={handleCheckout}
+                activatedPlan={profile.plans.name}
             />
         </>
     );

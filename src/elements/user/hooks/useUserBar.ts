@@ -4,12 +4,19 @@ import { createClient } from "@/lib/superbase/client";
 interface Profile {
     name: string;
     credits: number;
+    months: number;
+    active_sub: boolean;
+    plans: {
+        id: string;
+        name: string;
+        price: number;
+    }
 }
 
 export const useUserBar = () => {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showSettings, setShowSettings] = useState(false);
+    const [showPayments, setShowPayments] = useState(false);
     const [showPlans, setShowPlans] = useState(false);
 
     useEffect(() => {
@@ -24,7 +31,7 @@ export const useUserBar = () => {
 
             const { data, error } = await supabase
                 .from("profiles")
-                .select("name, credits")
+                .select("name, credits, months, active_sub, plans:plan_id(id, name, price)")
                 .eq("user_id", user.id)
                 .single();
 
@@ -32,6 +39,13 @@ export const useUserBar = () => {
                 setProfile({
                     name: data.name || user.email || "Anonymous",
                     credits: data.credits ?? 0,
+                    months: data.months,
+                    active_sub: data.active_sub,
+                    plans: {
+                        id: data.plans.id,
+                        name: data.plans.name,
+                        price: data.plans.price
+                    }
                 });
             }
 
@@ -41,5 +55,5 @@ export const useUserBar = () => {
         fetchUser();
     }, []);
 
-    return { profile, loading, setShowSettings, showSettings, setShowPlans, showPlans };
+    return { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans };
 }

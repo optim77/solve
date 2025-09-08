@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { Purchase, Subscription } from "@/elements/user/types/types";
+import { Purchase, UserSubscription } from "@/elements/user/types/types";
 import { createClient } from "@/lib/superbase/client";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
+import toast from "react-hot-toast";
 
-export const usePayments = () => {
+export const usePayments = (planId?: string, activeSub?: boolean) => {
 
     const [payments, setPayments] = useState<Purchase[]>([]);
-    const [subscriptions, setSubscription] = useState<Subscription[]>([]);
+    const [subscriptions, setSubscription] = useState<UserSubscription>();
+    const [loadingPayments, setLoadingPayments] = useState(true);
+    const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
     const { user } = useSupabaseUser();
 
     const fetchPurchases = async () => {
@@ -27,36 +30,34 @@ export const usePayments = () => {
                 price
               )
             `)
+            .order("created_at", { ascending: false })
             .eq("user_id", user.id);
 
-        if (error || !data) throw new Error(error?.message);
+        if (error || !data){
+            toast.error("Something went wrong! Try again");
+            throw new Error(error?.message);
+        }
 
-        console.log("purchases", data);
         setPayments(data);
+        setLoadingPayments(false);
     };
 
     const fetchSubscriptions = async () => {
-        const { data, error } = await createClient()
-            .from("subscriptions")
-            .select(`
-              id,
-              created_at,
-              months,
-              active,
-              plans:plans (
-                id,
-                name,
-                price,
-                description
-              )
-            `)
-            .eq("user_id", user.id)
-            .eq("active", true);
+        if (planId && activeSub){
+            const { data, error } = await createClient()
+                .from("plans")
+                .select('id, name, price, description')
+                .eq("id", planId)
+                .single();
+            if (error || !data) {
+                toast.error("Something went wrong! Try again");
+                throw new Error(error?.message);
+            }
+            setSubscription(data);
+            setLoadingSubscriptions(false);
+        }
 
-        if (error || !data) throw new Error(error?.message);
 
-        console.log("sub", data);
-        setSubscription(data);
     };
 
     useEffect(() => {
@@ -64,6 +65,6 @@ export const usePayments = () => {
         fetchSubscriptions();
     }, [user]);
 
-    return { payments, subscriptions };
+    return { payments, subscriptions, loadingPayments, loadingSubscriptions };
 
 }

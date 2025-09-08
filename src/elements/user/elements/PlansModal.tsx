@@ -14,6 +14,7 @@ interface PlansModalProps {
     loadingPlans: boolean;
     loadingCredits: boolean;
     handleCheckout: (id: string, type: Item) => void;
+    activatedPlan: string;
 }
 
 export default function PlansModal({
@@ -26,6 +27,7 @@ export default function PlansModal({
                                        loadingPlans,
                                        loadingCredits,
                                        handleCheckout,
+                                       activatedPlan,
                                    }: PlansModalProps) {
     if (!show) return null;
 
@@ -44,7 +46,7 @@ export default function PlansModal({
                 <p className="font-semibold mb-4 text-center">
                     Select the plan or credits that best fits your needs
                 </p>
-
+                {/*// TODO: Change from select buttons to shadcn tabs*/}
                 <div className="flex justify-center mb-5">
                     <div className="flex items-center me-4">
                         <input
@@ -80,7 +82,6 @@ export default function PlansModal({
                     </div>
                 </div>
 
-                {/* Subscription plans */}
                 {item === "subscription" && (
                     <div className="flex justify-center mb-5 flex-wrap">
                         {!loadingPlans &&
@@ -94,22 +95,27 @@ export default function PlansModal({
                     ${plan.price}/month
                   </span>
                                     <br />
-                                    <button
-                                        onClick={() => handleCheckout(plan.id, "subscription")}
-                                        className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Subscribe
-                                    </button>
+                                    {activatedPlan === plan.name ? (
+
+                                        <p className="p-4 ">Your plan</p>
+                                        ) : (
+                                        <button
+                                            onClick={() => handleCheckout(plan.id, "subscription")}
+                                            className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                        >
+                                            {!activatedPlan ? 'Subscribe' : 'Change plan'}
+                                        </button>
+                                    )}
+
                                     <div
                                         className="text-sm mt-5"
-                                        dangerouslySetInnerHTML={{ __html: plan.description }}
+                                        dangerouslySetInnerHTML={{ __html: plan.description! }}
                                     />
                                 </div>
                             ))}
                     </div>
                 )}
 
-                {/* Credits */}
                 {item === "credits" && (
                     <div className="flex justify-center mb-5 flex-wrap">
                         {!loadingCredits &&
@@ -133,7 +139,6 @@ export default function PlansModal({
                     </div>
                 )}
 
-                {/* Close button */}
                 <button
                     onClick={onClose}
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"

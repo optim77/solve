@@ -1,11 +1,9 @@
-import { boolean } from "zod";
-
 export interface Purchase {
     id: string;
     created_at: string;
     checkout_session_id: string;
-    credits: Credits[];
-    plans: Plan[];
+    credits: Credits;
+    plans: Plan;
 }
 
 
@@ -29,5 +27,12 @@ export interface Subscription {
     created_at: string;
     months: string;
     active: boolean;
-    plans: Plan[];
+    plans: Plan;
+}
+
+export interface UserSubscription {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
 }

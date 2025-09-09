@@ -2,6 +2,7 @@ import ChatPage from "@/components/ChatPage";
 import { createClient } from "@/lib/superbase/server";
 import { redirect } from "next/navigation";
 import { ChatProvider } from "@/components/context/ChatProvider";
+import { UserBarProvider } from "@/elements/user/UserBarContext";
 
 export default async function Chat() {
     const supabase = await createClient();
@@ -12,10 +13,10 @@ export default async function Chat() {
     }
 
     return (
-        <>
+        <UserBarProvider>
             <ChatProvider>
                 <ChatPage />
             </ChatProvider>
-        </>
+        </UserBarProvider>
     );
 }

@@ -17,13 +17,14 @@ import {
 import { useLogout } from "@/elements/user/hooks/useLogout";
 import { CreditCard, LogOut, Settings } from "lucide-react";
 import { PaymentsModal } from "@/elements/user/elements/PaymentsModal";
+import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 export default function UserBar() {
-    const { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans } = useUserBar();
+    const { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans, credits } = useUserBarContext();
     const { logout } = useLogout();
     const { payments, subscriptions, loadingPayments, loadingSubscriptions } = usePayments(profile?.plans.id, profile?.active_sub);
     const { plans, loadingPlans } = usePlans();
-    const { credits, loadingCredits } = useCredits();
+    const { creditsPlan, loadingCredits } = useCredits();
     const { handleCheckout } = usePayment();
     const [item, setItem] = useState<Item>("subscription");
 
@@ -59,7 +60,7 @@ export default function UserBar() {
                     className="text-blue-600 font-bold cursor-pointer hover:underline"
                     onClick={() => setShowPlans(true)}
                 >
-                    {profile.credits} credits
+                    {credits} credits
                 </span>
             </div>
 
@@ -78,7 +79,7 @@ export default function UserBar() {
                 item={item}
                 setItem={setItem}
                 plans={plans}
-                credits={credits}
+                credits={creditsPlan}
                 loadingPlans={loadingPlans}
                 loadingCredits={loadingCredits}
                 handleCheckout={handleCheckout}

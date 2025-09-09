@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
+import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
 
 interface Profile {
     name: string;
@@ -18,6 +19,8 @@ export const useUserBar = () => {
     const [loading, setLoading] = useState(true);
     const [showPayments, setShowPayments] = useState(false);
     const [showPlans, setShowPlans] = useState(false);
+    const [credits, setCredits] = useState<number>();
+    const { user } = useSupabaseUser();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -47,6 +50,7 @@ export const useUserBar = () => {
                         price: data.plans.price
                     }
                 });
+                setCredits(data.credits);
             }
 
             setLoading(false);
@@ -55,5 +59,32 @@ export const useUserBar = () => {
         fetchUser();
     }, []);
 
-    return { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans };
+    const decreaseCredits = async () => {
+        try {
+            if (user && credits !== undefined) {
+                const supabase = createClient();
+                const newCredits = Math.max(0, credits - 50);
+
+                const { data, error } = await supabase
+                    .from("profiles")
+                    .update({ credits: newCredits })
+                    .eq("user_id", user.id)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                console.log(newCredits);
+                setCredits(newCredits);
+                setProfile((prev) => prev ? { ...prev, credits: newCredits } : prev);
+
+                console.log("Credits updated:", data);
+                return data;
+            }
+        } catch (err) {
+            console.error("Error decreasing credits:", err);
+            return null;
+        }
+    };
+
+    return { profile, loading, setShowPayments, showPayments, setShowPlans, showPlans, credits, setCredits, decreaseCredits };
 }

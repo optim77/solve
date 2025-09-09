@@ -8,6 +8,8 @@ import { BlankChatMessage } from "@/elements/chat/BlankChatMessage";
 import ChatSelector from "@/components/ChatSelector";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
 import { useChatContext } from "@/components/context/ChatProvider";
+import { useUserBar } from "@/elements/user/hooks/useUserBar";
+import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
@@ -23,6 +25,7 @@ export default function ChatPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { fetchChats, addChat } = useChatContext();
 
+    const { credits, decreaseCredits } = useUserBarContext();
     // ulep
     useEffect(() => {
         document.documentElement.classList.add("dark");
@@ -104,6 +107,14 @@ export default function ChatPage() {
 
     const sendMessage = async () => {
         if (!input.trim()) return;
+
+        if (credits !== undefined && credits < 50) {
+            toast.error("Not enough credits");
+            return;
+        }
+
+        await decreaseCredits();
+
 
         const newMessage: Message = { role: "user", content: input };
 

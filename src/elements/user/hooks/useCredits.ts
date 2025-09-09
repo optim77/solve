@@ -2,10 +2,8 @@
     import { createClient } from "@/lib/superbase/client";
     import { Credits } from "@/elements/user/types/types";
 
-
-
     export const useCredits = () => {
-        const [credits, setCredits] = useState<Credits[]>([]);
+        const [creditsPlan, setCreditsPlan] = useState<Credits[]>([]);
         const [loadingCredits, setLoadingCredits] = useState(true);
 
         useEffect(() => {
@@ -19,7 +17,7 @@
                 if (error) {
                     console.error("Supabase error:", error.message);
                 } else {
-                    setCredits(data);
+                    setCreditsPlan(data);
                 }
 
                 setLoadingCredits(false);
@@ -28,6 +26,6 @@
         }, []);
 
 
-        return { credits, loadingCredits };
+        return { creditsPlan, loadingCredits };
 
     }

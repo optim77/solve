@@ -1,4 +1,13 @@
 import { Trash } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription, DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface ChatProps {
     id: string;
@@ -32,14 +41,34 @@ export const ChatButton = ({chat, onSelect, isActive, onDelete}: Props) => {
                     {chat.title}
                 </span>
             </button>
-            <button
-                onClick={() => onDelete(chat.id)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
-            >
-                <Trash size={14} className="text-gray-400"/>
-            </button>
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button className="absolute top-1/2 right-3 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded">
+                            <Trash size={14} className="text-gray-400"/>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription>
+                            Once the chat has been deleted, it cannot be restored.
+                        </DialogDescription>
+                        <DialogFooter>
+                            <Button
+                                onClick={() => onDelete(chat.id)}
+                            >
+                                Delete
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
 
-        </div>
-    );
+
+
+</div>
+)
+    ;
 };

@@ -1,4 +1,4 @@
-export default function TypingIndicator() {
+export const TypingIndicator = () => {
     return (
         <>
             <span className="dot-anim"></span>

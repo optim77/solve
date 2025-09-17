@@ -26,12 +26,14 @@ export async function POST(req: Request) {
     );
 
     try {
+        let subscriptionId = '';
         switch (event.type) {
             case "checkout.session.completed": {
                 const session = event.data.object as any;
                 console.log(session);
 
                 if (session.mode === "subscription") {
+                    subscriptionId = session.subscription;
                     const { data: sub, error: subError } = await supabase
                         .from("profiles")
                         .select("months")
@@ -50,7 +52,8 @@ export async function POST(req: Request) {
                                 plan_id: session.metadata.productId,
                                 months: monthsCounter,
                                 active_sub: true,
-                                renewal_date: new Date().toISOString()
+                                renewal_date: new Date().toISOString(),
+                                subscription_id: subscriptionId
                             },
                             {
                                 onConflict: "user_id",
@@ -100,6 +103,7 @@ export async function POST(req: Request) {
                             user_id: session.client_reference_id,
                             credits_id: session.metadata.productId,
                             checkout_session_id: session.id,
+                            subscription_id: subscriptionId
                         });
 
                     if (purchaseError) throw purchaseError;

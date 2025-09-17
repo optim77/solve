@@ -1,6 +1,17 @@
 import { useState } from "react";
 import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 import { useNewAssistantModal } from "@/elements/assistant/hooks/useNewAssistantModal";
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ExamplePrompts } from "@/ExamplePrompts";
 
 interface Props {
     isOpen: boolean;
@@ -8,7 +19,7 @@ interface Props {
     onAdded?: () => void;
 }
 
-export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
+export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
     const {
         name,
         setName,
@@ -32,7 +43,6 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={onClose}
         >
-            {/* Modal content */}
             <div
                 className="relative border rounded-2xl shadow-lg w-full max-w-md p-6"
                 onClick={(e) => e.stopPropagation()}
@@ -47,6 +57,53 @@ export const AddAssistantModal = ({ isOpen, onClose, onAdded }: Props) => {
                 <h2 className="text-xl font-semibold text-white mb-4">
                     Add a new assistant
                 </h2>
+
+                <Dialog>
+                    <DialogTrigger>
+                        <Button className='mb-3'>See inspirations</Button>
+                    </DialogTrigger>
+                    <DialogContent className=" p-4">
+                        <DialogHeader>
+                            <DialogTitle>Inspirations</DialogTitle>
+                            <DialogDescription>
+                                <Tabs defaultValue="expert">
+                                    <TabsList className="flex-wrap max-w-full overflow-x-auto">
+                                        {Array.from(ExamplePrompts.keys()).map((key) => (
+                                            <TabsTrigger key={key} value={key} className="capitalize">
+                                                {key}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+
+                                    <div className="mt-4 max-h-[110vh] overflow-auto">
+                                        {Array.from(ExamplePrompts.entries()).map(([key, value]) => (
+                                            <TabsContent key={key} value={key}>
+                                                <div className="space-y-2">
+                                                    <p className="font-semibold">Prompt:</p>
+                                                    <div className="relative">
+                                                        <pre className="whitespace-pre-wrap rounded-lg bg-muted p-10 text-sm font-mono">
+                                                          {value}
+                                                        </pre>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="absolute top-2 right-2"
+                                                            onClick={() => navigator.clipboard.writeText(value)}
+                                                        >
+                                                            Copy
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </TabsContent>
+                                        ))}
+                                    </div>
+                                </Tabs>
+                            </DialogDescription>
+                        </DialogHeader>
+                    </DialogContent>
+                </Dialog>
+
+
 
                 <div className="space-y-4">
                     <input

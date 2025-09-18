@@ -20,6 +20,7 @@ export interface Plan {
     name: string;
     description?: string;
     price: number;
+    active_sub: boolean;
 }
 
 export interface Subscription {

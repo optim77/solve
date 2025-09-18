@@ -24,7 +24,7 @@ export const PaymentsModal = ({
                               }: PaymentsModalProps) => {
 
     if (!show) return null;
-    console.log(payments);
+
     return createPortal(
         <div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999]"
@@ -62,8 +62,13 @@ export const PaymentsModal = ({
                                 </div>
 
                                 <button
-                                    className="cursor-pointer bg-red-500 rounded-lg
-                                        text-sm px-5 py-2.5 ml-3 text-center"
+                                    className="cursor-pointer bg-red-500 rounded-lg text-sm px-5 py-2.5 ml-3 text-center"
+                                    onClick={async () => {
+                                        await fetch("/api/stripe/unsubscribe", {
+                                            method: "POST",
+                                        });
+                                        window.location.reload();
+                                    }}
                                 >
                                     Unsubscribe
                                 </button>

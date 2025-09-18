@@ -14,7 +14,8 @@ interface PlansModalProps {
     loadingPlans: boolean;
     loadingCredits: boolean;
     handleCheckout: (id: string, type: Item) => void;
-    activatedPlan: string;
+    activatedPlan?: string;
+    activeSub: boolean;
 }
 
 export default function PlansModal({
@@ -28,6 +29,7 @@ export default function PlansModal({
                                        loadingCredits,
                                        handleCheckout,
                                        activatedPlan,
+                                       activeSub,
                                    }: PlansModalProps) {
     if (!show) return null;
 
@@ -92,16 +94,19 @@ export default function PlansModal({
                                 >
                                     <h3 className="text-lg font-semibold">{plan.name}</h3>
                                     <span className="text-blue-500 font-bold">
-                    ${plan.price}/month
-                  </span>
+                                        ${plan.price}/month
+                                      </span>
                                     <br />
-                                    {activatedPlan === plan.name ? (
+                                    {activeSub && activatedPlan === plan.name ? (
 
                                         <p className="p-4 ">Your plan</p>
                                         ) : (
                                         <button
                                             onClick={() => handleCheckout(plan.id, "subscription")}
-                                            className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                            className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
+                                            to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
+                                            focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
+                                            text-sm px-5 py-2.5 text-center"
                                         >
                                             {!activatedPlan ? 'Subscribe' : 'Change plan'}
                                         </button>
@@ -130,7 +135,10 @@ export default function PlansModal({
                                     <br />
                                     <button
                                         onClick={() => handleCheckout(credit.id, "credits")}
-                                        className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                        className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
+                                        to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
+                                        focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
+                                        text-sm px-5 py-2.5 text-center"
                                     >
                                         Purchase
                                     </button>

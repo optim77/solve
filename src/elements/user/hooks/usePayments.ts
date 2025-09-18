@@ -13,6 +13,8 @@ export const usePayments = (planId?: string, activeSub?: boolean) => {
     const { user } = useSupabaseUser();
 
     const fetchPurchases = async () => {
+        if (!user) return;
+
         const { data, error } = await createClient()
             .from("purchase")
             .select(`
@@ -33,7 +35,7 @@ export const usePayments = (planId?: string, activeSub?: boolean) => {
             .order("created_at", { ascending: false })
             .eq("user_id", user.id);
 
-        if (error || !data){
+        if (error || !data) {
             toast.error("Something went wrong! Try again");
             throw new Error(error?.message);
         }

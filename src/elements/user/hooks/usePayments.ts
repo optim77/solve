@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { Purchase, UserSubscription } from "@/elements/user/types/types";
+import { Purchase } from "@/elements/user/types/types";
 import { createClient } from "@/lib/superbase/client";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
 import toast from "react-hot-toast";
 
-export const usePayments = (planId?: string, activeSub?: boolean) => {
+export const usePayments = () => {
 
     const [payments, setPayments] = useState<Purchase[]>([]);
-    const [subscriptions, setSubscription] = useState<UserSubscription>();
     const [loadingPayments, setLoadingPayments] = useState(true);
-    const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
     const { user } = useSupabaseUser();
 
     const fetchPurchases = async () => {
@@ -39,34 +37,14 @@ export const usePayments = (planId?: string, activeSub?: boolean) => {
             toast.error("Something went wrong! Try again");
             throw new Error(error?.message);
         }
-
         setPayments(data);
         setLoadingPayments(false);
     };
 
-    const fetchSubscriptions = async () => {
-        if (planId && activeSub){
-            const { data, error } = await createClient()
-                .from("plans")
-                .select('id, name, price, description')
-                .eq("id", planId)
-                .single();
-            if (error || !data) {
-                toast.error("Something went wrong! Try again");
-                throw new Error(error?.message);
-            }
-            setSubscription(data);
-            setLoadingSubscriptions(false);
-        }
-
-
-    };
-
     useEffect(() => {
         fetchPurchases();
-        fetchSubscriptions();
     }, [user]);
 
-    return { payments, subscriptions, loadingPayments, loadingSubscriptions };
+    return { payments, loadingPayments };
 
 }

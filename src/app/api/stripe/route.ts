@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
         const supabase = await createClient();
 
-        const { data, error } = await supabase.auth.getUser();
+        const { data } = await supabase.auth.getUser();
 
         let product: Product;
         if (type === "subscription") {

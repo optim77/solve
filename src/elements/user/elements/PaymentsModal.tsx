@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 interface PaymentsModalProps {
     show: boolean;
     onClose: () => void;
-    subscriptions?: UserSubscription;
+    subscriptions?: UserSubscription | null;
     payments: Purchase[];
     loadingPayment: boolean;
     loadingSubscription: boolean;

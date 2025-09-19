@@ -26,15 +26,19 @@ export async function POST(req: Request) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    const {data: {user}} = await supabase.auth.getUser();
+
     try {
         let subscriptionId = '';
         switch (event && event.type) {
             case "checkout.session.completed": {
-                const session = event.data.object;
+                if (!event) {
+                    return new NextResponse("No event", { status: 400 });
+                }
+                const session = event.data.object as Stripe.Checkout.Session;
 
-                if (session.mode === "subscription") {
+                if (session.mode === "subscription" && session.subscription) {
                     subscriptionId = session.subscription as string;
+
 
                     if (!session.metadata) throw new Error("Missing metadata");
 
@@ -56,7 +60,7 @@ export async function POST(req: Request) {
                             items: [
                                 {
                                     id: currentSub.items.data[0].id,
-                                    price: session.metadata.productId,
+                                    price: session.metadata.stripePriceId
                                 },
                             ],
                             proration_behavior: "create_prorations",
@@ -85,6 +89,7 @@ export async function POST(req: Request) {
                         plans_id: session.metadata.productId,
                         checkout_session_id: session.id,
                     });
+                    await upsertUserCredits(session, supabase);
 
                     if (purchaseError) throw purchaseError;
                 } else {

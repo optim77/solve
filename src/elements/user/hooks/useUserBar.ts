@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
+import toast from "react-hot-toast";
+import { UserSubscription } from "@/elements/user/types/types";
 
 export interface Profile {
     name: string;
@@ -17,70 +19,98 @@ export interface UserPlan {
 
 export const useUserBar = () => {
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [userPlan, setUserPlan] = useState<UserPlan>();
+    const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
+    const [subscriptions, setSubscription] = useState<UserSubscription | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
+    const [credits, setCredits] = useState<number>(0);
     const [showPayments, setShowPayments] = useState(false);
     const [showPlans, setShowPlans] = useState(false);
-    const [credits, setCredits] = useState<number>();
-    const {user} = useSupabaseUser();
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const supabase = createClient();
+    const { user } = useSupabaseUser();
 
-            const {data: {user}} = await supabase.auth.getUser();
-            if (!user) {
-                setLoading(false);
-                return;
-            }
+    // -------------------- fetchUser --------------------
+    const fetchUser = async () => {
+        const supabase = createClient();
 
-            const {data, error} = await supabase
-                .from("profiles")
-                .select("name, credits, months, active_sub, plans:plan_id(id, name, price)")
-                .eq("user_id", user.id)
-                .single();
-            console.log(data);
-            if (!error && data) {
-                setProfile({
-                    name: data.name || user.email || "Anonymous",
-                    credits: data.credits ?? 0,
-                    months: data.months,
-                    active_sub: data.active_sub,
-                });
-                if (data.plans) {
-                    setUserPlan(data.plans[0]);
-                }
-
-                setCredits(data.credits);
-            }
-
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
             setLoading(false);
-        };
+            return;
+        }
 
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("name, credits, months, active_sub, plans:plan_id(id, name, price)")
+            .eq("user_id", user.id)
+            .single();
+
+        if (!error && data) {
+            setProfile({
+                name: data.name || user.email || "Anonymous",
+                credits: data.credits ?? 0,
+                months: data.months,
+                active_sub: data.active_sub,
+            });
+            if (data.plans) {
+                setUserPlan(data.plans);
+
+                // fetchSubscriptions od razu po ustawieniu planu
+                await fetchSubscriptions(data.plans, data.active_sub);
+            }
+
+            setCredits(data.credits ?? 0);
+        }
+
+        setLoading(false);
+    };
+
+    // -------------------- fetchSubscriptions --------------------
+    const fetchSubscriptions = async (plan: UserPlan, activeSub: boolean) => {
+        if (!plan || !activeSub) return;
+
+        const { data, error } = await createClient()
+            .from("plans")
+            .select("id, name, price, description")
+            .eq("id", plan.id)
+            .single();
+
+        if (error || !data) {
+            toast.error("Something went wrong! Try again");
+            return;
+        }
+
+        setSubscription(data);
+        setLoadingSubscriptions(false);
+    };
+
+    // -------------------- useEffect główny --------------------
+    useEffect(() => {
         fetchUser();
     }, []);
 
+    // -------------------- decreaseCredits --------------------
     const decreaseCredits = async () => {
         try {
-            if (user && credits !== undefined) {
-                const supabase = createClient();
-                const newCredits = Math.max(0, credits - 50);
+            if (!user || credits === undefined) return null;
 
-                const {data, error} = await supabase
-                    .from("profiles")
-                    .update({credits: newCredits})
-                    .eq("user_id", user.id)
-                    .select()
-                    .single();
+            const supabase = createClient();
+            const newCredits = Math.max(0, credits - 50);
 
-                if (error) throw error;
-                console.log(newCredits);
-                setCredits(newCredits);
-                setProfile((prev) => prev ? {...prev, credits: newCredits} : prev);
+            const { data, error } = await supabase
+                .from("profiles")
+                .update({ credits: newCredits })
+                .eq("user_id", user.id)
+                .select()
+                .single();
 
-                console.log("Credits updated:", data);
-                return data;
-            }
+            if (error) throw error;
+
+            setCredits(newCredits);
+            setProfile((prev) => (prev ? { ...prev, credits: newCredits } : prev));
+            console.log("Credits updated:", data);
+
+            return data;
         } catch (err) {
             console.error("Error decreasing credits:", err);
             return null;
@@ -90,13 +120,15 @@ export const useUserBar = () => {
     return {
         profile,
         userPlan,
+        subscriptions,
         loading,
-        setShowPayments,
-        showPayments,
-        setShowPlans,
-        showPlans,
+        loadingSubscriptions,
         credits,
         setCredits,
-        decreaseCredits
+        showPayments,
+        setShowPayments,
+        showPlans,
+        setShowPlans,
+        decreaseCredits,
     };
-}
+};

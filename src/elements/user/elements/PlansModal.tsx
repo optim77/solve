@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 
 import { Credits, Item, Plan } from "@/elements/user/types/types";
+import { UserPlan } from "@/elements/user/hooks/useUserBar";
 
 
 
@@ -14,7 +15,7 @@ interface PlansModalProps {
     loadingPlans: boolean;
     loadingCredits: boolean;
     handleCheckout: (id: string, type: Item) => void;
-    activatedPlan?: string;
+    userPlan: UserPlan[] | UserPlan | null;
     activeSub: boolean;
 }
 
@@ -28,7 +29,7 @@ export default function PlansModal({
                                        loadingPlans,
                                        loadingCredits,
                                        handleCheckout,
-                                       activatedPlan,
+                                       userPlan,
                                        activeSub,
                                    }: PlansModalProps) {
     if (!show) return null;
@@ -97,7 +98,7 @@ export default function PlansModal({
                                         ${plan.price}/month
                                       </span>
                                     <br />
-                                    {activeSub && activatedPlan === plan.name ? (
+                                    {activeSub && userPlan?.name === plan.name ? (
 
                                         <p className="p-4 ">Your plan</p>
                                         ) : (
@@ -108,7 +109,7 @@ export default function PlansModal({
                                             focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
                                             text-sm px-5 py-2.5 text-center"
                                         >
-                                            {!activatedPlan ? 'Subscribe' : 'Change plan'}
+                                            {!userPlan ? 'Subscribe' : 'Change plan'}
                                         </button>
                                     )}
 

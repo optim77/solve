@@ -1,6 +1,5 @@
 "use client";
 
-import { useUserBar } from "@/elements/user/hooks/useUserBar";
 import { usePlans } from "@/elements/user/hooks/usePlans";
 import { useState } from "react";
 import { useCredits } from "@/elements/user/hooks/useCredits";
@@ -20,9 +19,9 @@ import { PaymentsModal } from "@/elements/user/elements/PaymentsModal";
 import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 export default function UserBar() {
-    const { profile, userPlan, loading, setShowPayments, showPayments, setShowPlans, showPlans, credits } = useUserBarContext();
+    const { profile, userPlan, loading, setShowPayments, showPayments, setShowPlans, showPlans, credits, subscriptions, loadingSubscriptions } = useUserBarContext();
     const { logout } = useLogout();
-    const { payments, subscriptions, loadingPayments, loadingSubscriptions } = usePayments(userPlan?.id, profile?.active_sub);
+    const { payments, loadingPayments } = usePayments();
     const { plans, loadingPlans } = usePlans();
     const { creditsPlan, loadingCredits } = useCredits();
     const { handleCheckout } = usePayment();
@@ -83,7 +82,7 @@ export default function UserBar() {
                 loadingPlans={loadingPlans}
                 loadingCredits={loadingCredits}
                 handleCheckout={handleCheckout}
-                activatedPlan={userPlan?.name}
+                userPlan={userPlan}
                 activeSub={profile.active_sub}
             />
         </>

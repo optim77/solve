@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 
 import { Credits, Item, Plan } from "@/elements/user/types/types";
 import { UserPlan } from "@/elements/user/hooks/useUserBar";
-
+import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
 
 
 interface PlansModalProps {
@@ -15,8 +15,10 @@ interface PlansModalProps {
     loadingPlans: boolean;
     loadingCredits: boolean;
     handleCheckout: (id: string, type: Item) => void;
+    buyCredits: (packId: string, userId: string) => void;
     userPlan: UserPlan[] | UserPlan | null;
     activeSub: boolean;
+    handleManageSubscription: () => void;
 }
 
 export default function PlansModal({
@@ -29,11 +31,13 @@ export default function PlansModal({
                                        loadingPlans,
                                        loadingCredits,
                                        handleCheckout,
+                                       buyCredits,
                                        userPlan,
                                        activeSub,
+                                       handleManageSubscription
                                    }: PlansModalProps) {
+    const {user} = useSupabaseUser();
     if (!show) return null;
-
     return createPortal(
         <div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999]"
@@ -97,25 +101,42 @@ export default function PlansModal({
                                     <span className="text-blue-500 font-bold">
                                         ${plan.price}/month
                                       </span>
-                                    <br />
+                                    <br/>
                                     {activeSub && userPlan?.name === plan.name ? (
 
                                         <p className="p-4 ">Your plan</p>
-                                        ) : (
-                                        <button
-                                            onClick={() => handleCheckout(plan.id, "subscription")}
-                                            className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
+                                    ) : (
+                                        <>
+                                            {!userPlan && !activeSub ? (
+                                                <button
+                                                    onClick={() => handleCheckout(plan.id, "subscription")}
+                                                    className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
                                             to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
                                             focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
                                             text-sm px-5 py-2.5 text-center"
-                                        >
-                                            {!userPlan ? 'Subscribe' : 'Change plan'}
-                                        </button>
+                                                >
+                                                    Subscribe
+                                                </button>
+
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleManageSubscription()}
+                                                    className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
+                                            to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
+                                            focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
+                                            text-sm px-5 py-2.5 text-center"
+                                                >
+                                                    Change plan
+                                                </button>
+                                            )}
+
+                                        </>
+
                                     )}
 
                                     <div
                                         className="text-sm mt-5"
-                                        dangerouslySetInnerHTML={{ __html: plan.description! }}
+                                        dangerouslySetInnerHTML={{__html: plan.description!}}
                                     />
                                 </div>
                             ))}
@@ -133,9 +154,9 @@ export default function PlansModal({
                                     <h3 className="text-blue-500 font-bold">
                                         {credit.credits} credits
                                     </h3>
-                                    <br />
+                                    <br/>
                                     <button
-                                        onClick={() => handleCheckout(credit.id, "credits")}
+                                        onClick={() => buyCredits(credit.id, user.id)}
                                         className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
                                         to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
                                         focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg

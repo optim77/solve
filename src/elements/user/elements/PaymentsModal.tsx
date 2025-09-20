@@ -1,7 +1,6 @@
 import { createPortal } from "react-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Purchase, UserSubscription } from "@/elements/user/types/types";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 
 
@@ -12,6 +11,7 @@ interface PaymentsModalProps {
     payments: Purchase[];
     loadingPayment: boolean;
     loadingSubscription: boolean;
+    handleManageSubscription: () => void;
 }
 
 export const PaymentsModal = ({
@@ -20,7 +20,8 @@ export const PaymentsModal = ({
                                   subscriptions,
                                   payments,
                                   loadingSubscription,
-                                  loadingPayment
+                                  loadingPayment,
+                                  handleManageSubscription
                               }: PaymentsModalProps) => {
 
     if (!show) return null;
@@ -62,15 +63,15 @@ export const PaymentsModal = ({
                                 </div>
 
                                 <button
-                                    className="cursor-pointer bg-red-500 rounded-lg text-sm px-5 py-2.5 ml-3 text-center"
+                                    className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
+                                            to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
+                                            focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg
+                                            text-sm px-5 py-2.5 text-center"
                                     onClick={async () => {
-                                        await fetch("/api/stripe/unsubscribe", {
-                                            method: "POST",
-                                        });
-                                        window.location.reload();
+                                        handleManageSubscription();
                                     }}
                                 >
-                                    Unsubscribe
+                                    Manage your subscription
                                 </button>
                             </div>
                         )}

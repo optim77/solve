@@ -29,7 +29,6 @@ export const useUserBar = () => {
 
     const { user } = useSupabaseUser();
 
-    // -------------------- fetchUser --------------------
     const fetchUser = async () => {
         const supabase = createClient();
 
@@ -55,7 +54,6 @@ export const useUserBar = () => {
             if (data.plans) {
                 setUserPlan(data.plans);
 
-                // fetchSubscriptions od razu po ustawieniu planu
                 await fetchSubscriptions(data.plans, data.active_sub);
             }
 
@@ -64,8 +62,6 @@ export const useUserBar = () => {
 
         setLoading(false);
     };
-
-    // -------------------- fetchSubscriptions --------------------
     const fetchSubscriptions = async (plan: UserPlan, activeSub: boolean) => {
         if (!plan || !activeSub) return;
 
@@ -84,12 +80,10 @@ export const useUserBar = () => {
         setLoadingSubscriptions(false);
     };
 
-    // -------------------- useEffect główny --------------------
     useEffect(() => {
         fetchUser();
     }, []);
 
-    // -------------------- decreaseCredits --------------------
     const decreaseCredits = async () => {
         try {
             if (!user || credits === undefined) return null;
@@ -117,6 +111,25 @@ export const useUserBar = () => {
         }
     };
 
+    const handleManageSubscription = async () => {
+        const res = await fetch("/api/create-portal-session", {
+            method: "POST",
+            body: JSON.stringify({ userId: user.id }),
+        });
+
+        const data = await res.json();
+        window.location.href = data.url;
+    };
+
+    const buyCredits = async (packId: string, userId: string) => {
+        const res = await fetch("/api/create-checkout-session", {
+            method: "POST",
+            body: JSON.stringify({ packId, userId }),
+        });
+        const { url } = await res.json();
+        window.location.href = url;
+    };
+
     return {
         profile,
         userPlan,
@@ -130,5 +143,7 @@ export const useUserBar = () => {
         showPlans,
         setShowPlans,
         decreaseCredits,
+        handleManageSubscription,
+        buyCredits
     };
 };

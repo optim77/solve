@@ -19,12 +19,25 @@ import { PaymentsModal } from "@/elements/user/elements/PaymentsModal";
 import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 export default function UserBar() {
-    const { profile, userPlan, loading, setShowPayments, showPayments, setShowPlans, showPlans, credits, subscriptions, loadingSubscriptions } = useUserBarContext();
+    const {
+        profile,
+        userPlan,
+        loading,
+        setShowPayments,
+        showPayments,
+        setShowPlans,
+        showPlans,
+        credits,
+        subscriptions,
+        loadingSubscriptions,
+        handleManageSubscription,
+        buyCredits
+    } = useUserBarContext();
     const { logout } = useLogout();
-    const { payments, loadingPayments } = usePayments();
-    const { plans, loadingPlans } = usePlans();
-    const { creditsPlan, loadingCredits } = useCredits();
-    const { handleCheckout } = usePayment();
+    const {payments, loadingPayments} = usePayments();
+    const {plans, loadingPlans} = usePlans();
+    const {creditsPlan, loadingCredits} = useCredits();
+    const {handleCheckout} = usePayment();
     const [item, setItem] = useState<Item>("subscription");
 
     if (loading) {
@@ -47,11 +60,13 @@ export default function UserBar() {
         <>
             <div className="sticky bottom-0 border-t pt-3 mt-3 flex items-center justify-between text-sm text-gray-700">
                 <DropdownMenu>
-                    <DropdownMenuTrigger className="text-white cursor-pointer hover:underline">{profile.name}</DropdownMenuTrigger>
+                    <DropdownMenuTrigger
+                        className="text-white cursor-pointer hover:underline">{profile.name}</DropdownMenuTrigger>
                     <DropdownMenuContent className="p-3">
-                        <DropdownMenuItem onClick={() => setShowPayments(true)}><CreditCard /> Payments</DropdownMenuItem>
-                        <DropdownMenuItem><Settings /> Settings</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => logout()}><LogOut /> Logout</DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => setShowPayments(true)}><CreditCard/> Payments</DropdownMenuItem>
+                        <DropdownMenuItem><Settings/> Settings</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => logout()}><LogOut/> Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -70,6 +85,7 @@ export default function UserBar() {
                 payments={payments}
                 loadingPayment={loadingPayments}
                 loadingSubscription={loadingSubscriptions}
+                handleManageSubscription={handleManageSubscription}
             />
 
             <PlansModal
@@ -82,8 +98,10 @@ export default function UserBar() {
                 loadingPlans={loadingPlans}
                 loadingCredits={loadingCredits}
                 handleCheckout={handleCheckout}
+                buyCredits={buyCredits}
                 userPlan={userPlan}
                 activeSub={profile.active_sub}
+                handleManageSubscription={handleManageSubscription}
             />
         </>
     );

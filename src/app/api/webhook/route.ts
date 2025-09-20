@@ -7,8 +7,7 @@ export async function POST(req: Request) {
     const body = await req.text();
     const sig = req.headers.get("stripe-signature");
 
-
-    let event;
+    let event: Stripe.Event;
     try {
         event = stripe.webhooks.constructEvent(
             body,
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
     } catch (err) {
         if (err instanceof Error) {
             console.error("❌ Webhook signature verification failed:", err.message);
-            return new NextResponse(`Webhook Error: ${err.message}`, {status: 400});
+            return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
         }
     }
 
@@ -28,193 +27,222 @@ export async function POST(req: Request) {
     );
 
     try {
-        let subscriptionId = '';
-        switch (event && event.type) {
+        switch (event!.type) {
             case "checkout.session.completed": {
-                if (!event) {
-                    return new NextResponse("No event", { status: 400 });
-                }
+                console.log("XXXXX");
                 const session = event.data.object as Stripe.Checkout.Session;
+                console.log(session);
 
                 if (session.mode === "subscription" && session.subscription) {
-                    subscriptionId = session.subscription as string;
 
+                    const subscription = await stripe.subscriptions.retrieve(
+                        session.subscription as string
+                    );
+                    if (!session.client_reference_id) {
+                        throw new Error("Missing client_reference_id");
+                    }
 
-                    if (!session.metadata) throw new Error("Missing metadata");
-
-                    const { data: profile, error: profileError } = await supabase
-                        .from("profiles")
-                        .select("subscription_id, active_sub")
-                        .eq("user_id", session.client_reference_id)
+                    const { data: plan, error: planError } = await supabase
+                        .from("plans")
+                        .select("id, credits")
+                        .eq("stripe_price_id", subscription.items.data[0].price.id)
                         .single();
 
-                    if (profileError) {
-                        console.error("❌ Profile fetch error:", profileError.message);
-                        return new Response("Profile error", { status: 500 });
+                    if (planError || !plan) {
+                        throw new Error("Plan not found for given Stripe Price ID");
                     }
 
-                    if (profile?.active_sub && profile?.subscription_id) {
-                        const currentSub = await stripe.subscriptions.retrieve(profile.subscription_id);
+                    await supabase
+                        .from("profiles")
+                        .upsert(
+                            {
+                                user_id: session.client_reference_id,
+                                stripe_customer_id: session.customer as string,
+                                subscription_id: subscription.id,
+                                plan_id: plan.id,
+                                active_sub: subscription.status === "active",
+                            },
+                            { onConflict: "user_id" }
+                        );
 
-                        await stripe.subscriptions.update(profile.subscription_id, {
-                            items: [
-                                {
-                                    id: currentSub.items.data[0].id,
-                                    price: session.metadata.stripePriceId
-                                },
-                            ],
-                            proration_behavior: "create_prorations",
-                        });
-
-                        subscriptionId = profile.subscription_id;
-                    }
-
-                    const { error: upsertError } = await supabase.from("profiles").upsert(
-                        {
-                            user_id: session.client_reference_id,
-                            plan_id: session.metadata.productId,
-                            active_sub: true,
-                            renewal_date: new Date().toISOString(),
-                            subscription_id: subscriptionId,
-                        },
-                        {
-                            onConflict: "user_id",
-                        }
-                    );
-
-                    if (upsertError) throw upsertError;
-
-                    const { error: purchaseError } = await supabase.from("purchase").insert({
+                    await supabase.from("purchase").insert({
                         user_id: session.client_reference_id,
-                        plans_id: session.metadata.productId,
+                        plans_id: plan.id,
                         checkout_session_id: session.id,
+                        subscription_id: subscription.id,
                     });
-                    await upsertUserCredits(session, supabase);
 
-                    if (purchaseError) throw purchaseError;
+
                 } else {
-                    const checkoutSession = await stripe.checkout.sessions.retrieve(session.id, {
-                        expand: ["line_items.data.price.product"],
-                    });
+
+                    const checkoutSession = await stripe.checkout.sessions.retrieve(
+                        session.id,
+                        { expand: ["line_items.data.price.product"] }
+                    );
                     const lineItem = checkoutSession.line_items?.data[0];
-                    const price = lineItem?.price;
-                    const product = price?.product as Stripe.Product;
-                    const {data: userProfile, error: profileError} = await supabase
+                    const product = lineItem?.price?.product as Stripe.Product;
+
+                    if (!session.client_reference_id) {
+                        throw new Error("Missing client_reference_id for one-time purchase");
+                    }
+
+                    const { data: profile } = await supabase
                         .from("profiles")
                         .select("credits")
                         .eq("user_id", session.client_reference_id)
                         .single();
 
-                    if (profileError) throw profileError;
-
                     const creditsToAdd = parseInt(product.name ?? "0", 10);
+                    const newCredits = (profile?.credits ?? 0) + creditsToAdd;
 
-                    const newCredits = (userProfile?.credits ?? 0) + creditsToAdd;
-
-                    const {error: updateError} = await supabase
+                    await supabase
                         .from("profiles")
-                        .update({credits: newCredits})
+                        .update({ credits: newCredits })
                         .eq("user_id", session.client_reference_id);
 
-                    if (updateError) throw updateError;
-                    if (!session.metadata) throw new Error()
-
-                    const {error: purchaseError} = await supabase
-                        .from("purchase")
-                        .insert({
-                            user_id: session.client_reference_id,
-                            credits_id: session.metadata.productId,
-                            checkout_session_id: session.id,
-                            subscription_id: subscriptionId
-                        });
-
-                    if (purchaseError) throw purchaseError;
+                    await supabase.from("purchase").insert({
+                        user_id: session.client_reference_id,
+                        credits_id: session.metadata?.productId,
+                        checkout_session_id: session.id,
+                    });
                 }
+                // TODO
+                await upsertUserCredits(
+                    session.metadata?.stripePriceId as string,
+                    session.customer as string,
+                    supabase,
+                    session.client_reference_id
+                );
                 break;
             }
-            case "invoice.payment_succeeded": {
-                const invoice = event.data.object as Stripe.Invoice;
 
-                if (!invoice.subscription) {
-                    console.warn("Invoice has no subscription, skipping");
-                    break;
+            // ---------------- SUBSCRIPTION CREATED / UPDATED ----------------
+            case "customer.subscription.created":
+            case "customer.subscription.updated": {
+                const subscription = event.data.object as Stripe.Subscription;
+
+                const { data: plan, error: planError } = await supabase
+                    .from("plans")
+                    .select("id, credits, stripe_price_id")
+                    .eq("stripe_price_id", subscription.items.data[0].price.id)
+                    .single();
+
+                if (planError || !plan) {
+                    throw new Error("Plan not found for given Stripe Price ID");
                 }
 
-                const subscriptionId = invoice.subscription as string;
-
-                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-                const {data: profile, error: profileError} = await supabase
-                    .from("profiles")
-                    .select("user_id, plan_id, credits")
-                    .eq("subscription_id", subscriptionId)
-                    .single();
-
-                if (profileError || !profile) throw profileError;
-
-                const {data: plan, error: planError} = await supabase
-                    .from("plans")
-                    .select("credits")
-                    .eq("id", profile.plan_id)
-                    .single();
-
-                if (planError || !plan) throw planError;
-
-                const newCredits = (profile.credits ?? 0) + plan.credits;
                 await supabase
                     .from("profiles")
                     .update({
-                        credits: newCredits,
-                        renewal_date: new Date(subscription.current_period_end * 1000).toISOString(),
+                        subscription_id: subscription.id,
+                        plan_id: plan.id,
+                        active_sub: subscription.status === "active",
+                    })
+                    .eq("stripe_customer_id", subscription.customer);
+                console.log("JINX", subscription)
+                console.log("JINX", subscription.items.data[0])
+                await upsertUserCredits(
+                    plan.stripe_price_id,
+                    subscription.customer as string,
+                    supabase
+                );
+                break;
+            }
+
+
+            case "customer.subscription.deleted": {
+                const subscription = event.data.object as Stripe.Subscription;
+
+                await supabase
+                    .from("profiles")
+                    .update({
+                        active_sub: false,
+                        subscription_id: null,
+                        plan_id: null,
+                        renewal_date: null,
+                    })
+                    .eq("stripe_customer_id", subscription.customer);
+
+                break;
+            }
+
+            case "invoice.payment_succeeded": {
+                const invoice = event.data.object as Stripe.Invoice;
+                console.log("invoice", invoice);
+                if (!invoice.subscription) break;
+
+                const subscription = await stripe.subscriptions.retrieve(
+                    invoice.subscription as string
+                );
+
+                await supabase
+                    .from("profiles")
+                    .update({
                         active_sub: true,
                     })
-                    .eq("user_id", profile.user_id);
+                    .eq("stripe_customer_id", subscription.customer);
 
                 break;
             }
 
             case "invoice.payment_failed": {
-                if (event) {
-                    console.log("❌ Payment failed", event.data.object);
-                    break;
-                }
+                console.log("❌ Payment failed:", event.data.object);
+                break;
             }
+
+            default:
+                console.log(`Unhandled event type ${event.type}`);
         }
 
-        return NextResponse.json({received: true});
+        return NextResponse.json({ received: true });
     } catch (err) {
         if (err instanceof Error) {
             console.error("⚠️ Webhook error:", err.message);
-            return new NextResponse("Webhook error", {status: 500});
+            return new NextResponse("Webhook error", { status: 500 });
         }
     }
 }
 
-const upsertUserCredits = async (session, supabase) => {
+const upsertUserCredits = async (
+    stripePriceId: string,
+    customer: string,
+    supabase: any,
+    userId?: string
+) => {
     try {
-        const {data: userCredits} = await supabase
-            .from("profiles")
-            .select("credits")
-            .eq("user_id", session.client_reference_id)
-            .maybeSingle();
+        if (!stripePriceId) return;
 
-        const {data: planCredits} = await supabase
+        let profileQuery = supabase.from("profiles").select("credits").maybeSingle();
+        if (userId) {
+            profileQuery = supabase.from("profiles").select("credits").eq("user_id", userId).maybeSingle();
+        } else {
+            profileQuery = supabase.from("profiles").select("credits").eq("stripe_customer_id", customer).maybeSingle();
+        }
+
+        const { data: userCredits } = await profileQuery;
+
+        const { data: planCredits } = await supabase
             .from("plans")
             .select("credits")
-            .eq("id", session.metadata.productId)
+            .eq("stripe_price_id", stripePriceId)
             .single();
 
-        const addedUsersCredits = userCredits.credits + planCredits.credits;
+        if (!planCredits) return;
 
-        await supabase
-            .from("profiles")
-            .update({credits: addedUsersCredits})
-            .eq("user_id", session.client_reference_id);
+        const addedUsersCredits = (userCredits?.credits ?? 0) + planCredits.credits;
 
+        // aktualizacja kredytów
+        const updateQuery = supabase.from("profiles").update({ credits: addedUsersCredits });
+        if (userId) {
+            await updateQuery.eq("user_id", userId);
+        } else {
+            await updateQuery.eq("stripe_customer_id", customer);
+        }
     } catch (err) {
         if (err instanceof Error) {
-            console.error(err.message);
-            return new NextResponse("Webhook error", {status: 500});
+            console.error("❌ upsertUserCredits error:", err.message);
         }
     }
-}
+};
+
+

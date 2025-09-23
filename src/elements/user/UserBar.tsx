@@ -64,7 +64,7 @@ export default function UserBar() {
                         className="text-white cursor-pointer hover:underline">{profile.name}</DropdownMenuTrigger>
                     <DropdownMenuContent className="p-3">
                         <DropdownMenuItem
-                            onClick={() => setShowPayments(true)}><CreditCard/> Payments</DropdownMenuItem>
+                            onClick={() => handleManageSubscription()}><CreditCard/> Manage Subscription</DropdownMenuItem>
                         <DropdownMenuItem><Settings/> Settings</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => logout()}><LogOut/> Logout</DropdownMenuItem>
                     </DropdownMenuContent>

@@ -60,7 +60,7 @@ export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
 
                 <Dialog>
                     <DialogTrigger>
-                        <Button className='mb-3'>See inspirations</Button>
+                        <Button className='mb-3 cursor-pointer'>See inspirations</Button>
                     </DialogTrigger>
                     <DialogContent className=" p-4">
                         <DialogHeader>
@@ -69,7 +69,7 @@ export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
                                 <Tabs defaultValue="expert">
                                     <TabsList className="flex-wrap max-w-full overflow-x-auto">
                                         {Array.from(ExamplePrompts.keys()).map((key) => (
-                                            <TabsTrigger key={key} value={key} className="capitalize">
+                                            <TabsTrigger key={key} value={key} className="capitalize cursor-pointer">
                                                 {key}
                                             </TabsTrigger>
                                         ))}
@@ -87,7 +87,7 @@ export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="absolute top-2 right-2"
+                                                            className="absolute top-2 right-2 cursor-pointer"
                                                             onClick={() => navigator.clipboard.writeText(value)}
                                                         >
                                                             Copy
@@ -154,6 +154,7 @@ export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
                         <div className="mt-2">
                             <EmojiPicker
                                 theme={Theme.DARK}
+                                className={"cursor-pointer"}
                                 onEmojiClick={(emojiData: EmojiClickData) => {
                                     setIcon(emojiData.emoji);
                                     setShowEmojiPicker(false);
@@ -165,14 +166,14 @@ export const AddAssistantModal = ({isOpen, onClose, onAdded}: Props) => {
                     <div className="flex justify-end gap-2 pt-2">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+                            className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50"
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50 cursor-pointer"
                         >
                             {loading ? "Saving..." : "Add"}
                         </button>

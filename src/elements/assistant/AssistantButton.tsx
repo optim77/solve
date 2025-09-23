@@ -21,7 +21,7 @@ export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) 
         <div className="relative group">
             <button
                 onClick={() => onSelect(assistant)}
-                className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-200 text-left w-full
+                className={`flex items-center gap-2 p-2 rounded-lg transition-all duration-200 text-left w-full cursor-pointer
                     ${isActive
                     ? " border border-blue-500 shadow-lg"
                     : " border border-gray-700 hover:border-blue-400"}

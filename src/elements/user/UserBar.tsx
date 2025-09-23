@@ -33,7 +33,7 @@ export default function UserBar() {
         handleManageSubscription,
         buyCredits
     } = useUserBarContext();
-    const { logout } = useLogout();
+    const {logout} = useLogout();
     const {payments, loadingPayments} = usePayments();
     const {plans, loadingPlans} = usePlans();
     const {creditsPlan, loadingCredits} = useCredits();
@@ -64,7 +64,8 @@ export default function UserBar() {
                         className="text-white cursor-pointer hover:underline">{profile.name}</DropdownMenuTrigger>
                     <DropdownMenuContent className="p-3">
                         <DropdownMenuItem
-                            onClick={() => handleManageSubscription()}><CreditCard/> Manage Subscription</DropdownMenuItem>
+                            onClick={() => handleManageSubscription()}><CreditCard/> Manage
+                            Subscription</DropdownMenuItem>
                         <DropdownMenuItem><Settings/> Settings</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => logout()}><LogOut/> Logout</DropdownMenuItem>
                     </DropdownMenuContent>

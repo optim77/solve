@@ -110,7 +110,7 @@ export const useChatPage = () => {
             return;
         }
 
-        await decreaseCredits();
+
 
         const newMessage: Message = { role: "user", content: input };
         setMessages((prev) => [...prev, newMessage]);
@@ -151,7 +151,7 @@ export const useChatPage = () => {
                 });
                 fetchChats();
             }
-
+            await decreaseCredits();
             setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
             setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
         } catch {

@@ -22,16 +22,16 @@ export default function ChatPage() {
     } = useChatPage();
 
     return (
-        <div className="grid grid-cols-3 gap-20">
+        <div className="grid grid-cols-3 gap-10">
             <div>
                 <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
             </div>
 
-            <div className="flex flex-col h-screen p-4">
+            <div className="flex flex-col h-screen p-6">
                 <div
                     ref={chatContainerRef}
                     onScroll={handleScroll}
-                    className="flex-1 border rounded-lg mb-4 p-4 flex flex-col gap-3 overflow-y-auto"
+                    className="flex-1 rounded-lg mb-4 p-4 flex flex-col gap-3 overflow-y-auto"
                 >
                     {loading && messages.length === 0 && (
                         <div className="flex justify-center items-center">
@@ -49,7 +49,7 @@ export default function ChatPage() {
                     {messages.map((m, idx) => (
                         <div
                             key={idx}
-                            className={`max-w-xs p-3 rounded-2xl text-sm ${
+                            className={`max-w-xl p-3 rounded-2xl text-sm ${
                                 m.role === "user"
                                     ? "bg-blue-500 text-white self-end"
                                     : m.role === "assistant"

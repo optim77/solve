@@ -12,8 +12,8 @@ interface AssistantProps {
 interface Props {
     assistant: AssistantProps;
     onSelect: (assistant: Assistant) => void;
-    isActive: boolean;
-    onEdit: (id: string) => void;
+    isActive: boolean | undefined;
+    onEdit?: (id: string) => void;
 }
 
 export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) => {
@@ -47,13 +47,15 @@ export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) 
                     {assistant.model}
                 </p>
             </button>
+            {onEdit && (
+                <button
+                    onClick={() => onEdit(assistant.id)}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
+                >
+                    <Pencil size={14} className="text-gray-400"/>
+                </button>
+            )}
 
-            <button
-                onClick={() => onEdit(assistant.id)}
-                className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
-            >
-            <Pencil size={14} className="text-gray-400"/>
-            </button>
 
         </div>
     );

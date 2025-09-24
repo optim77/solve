@@ -44,7 +44,7 @@ export function SignUpForm({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/protected`,
+                    emailRedirectTo: `${window.location.origin}/auth/verify`,
                 },
             });
 
@@ -57,8 +57,10 @@ export function SignUpForm({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: user.id,
+                    id: user.id,
                     email: user.email,
+                    created_at: user.created_at,
+                    name: user.email?.split('@')[0],
                 }),
             });
 

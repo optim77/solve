@@ -11,10 +11,12 @@ export interface Assistant {
     icon: string;
     prompt: string;
     model: string;
+    isActive?: boolean;
 }
 export const useAssistant = (selected?: string) => {
     const { user } = useSupabaseUser();
     const [assistants, setAssistants] = useState<Assistant[]>([]);
+    const [publicAssistants, setPublicAssistants] = useState<Assistant[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [editId, setEditId] = useState<string | null>(null);
@@ -43,8 +45,22 @@ export const useAssistant = (selected?: string) => {
         }
     };
 
+    const fetchPublicAssistats = async () => {
+        const { data, error } = await createClient()
+            .from("public_assistants")
+            .select("id, name, icon, model, prompt");
+
+        if (error) {
+            toast.error("Failed to load assistants");
+            console.error(error);
+            return;
+        }
+        setPublicAssistants(data || []);
+    }
+
     useEffect(() => {
         fetchAssistants();
+        fetchPublicAssistats();
     }, [user?.id]);
 
     const memoizedAssistants = useMemo(() => {
@@ -54,10 +70,17 @@ export const useAssistant = (selected?: string) => {
         }));
     }, [assistants, selected]);
 
+    const memoizedPublicAssistant = useMemo(() => {
+        return publicAssistants.map(a => ({
+            ...a,
+            isActive: a.id === selected
+        }))
+    }, [publicAssistants, selected]);
+
     const handleEdit = (id: string) => {
         setEditId(id);
         setIsEditOpen(true);
     };
 
-    return { loading, editId, isEditOpen, memoizedAssistants, handleEdit, fetchAssistants, setIsEditOpen };
+    return { loading, editId, isEditOpen, memoizedAssistants, memoizedPublicAssistant, handleEdit, fetchAssistants, setIsEditOpen };
 }

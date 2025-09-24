@@ -5,9 +5,10 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-function getSupabaseServerClient() {
-    return cookies().then((cookieStore) =>
-        createServerClient(
+export async function POST(req: Request) {
+    try {
+        const cookieStore = await cookies();
+        const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
@@ -23,21 +24,14 @@ function getSupabaseServerClient() {
                     },
                 },
             }
-        )
-    );
-}
-
-export async function POST(req: Request) {
-
-    try {
-        const supabase = await getSupabaseServerClient();
+        );
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const {  selectedChat, assistant, messages } = await req.json();
+        const { selectedChat, assistant, messages } = await req.json();
         let convId = selectedChat;
 
         if (!convId) {
@@ -57,48 +51,61 @@ export async function POST(req: Request) {
         const systemPrompt = assistant?.prompt || "";
         const model = assistant?.model || "gpt-4o-mini";
 
-        const completion = await openai.chat.completions.create({
+        const stream = await openai.chat.completions.create({
             model,
             messages: [
                 { role: "system", content: systemPrompt },
                 ...messages,
             ],
+            stream: true,
         });
 
-        const list = await openai.models.list();
+        const encoder = new TextEncoder();
+        let fullReply = "";
 
-        for await (const model of list) {
-            console.log(model);
-        }
+        const readable = new ReadableStream({
+            async start(controller) {
+                try {
+                    for await (const chunk of stream) {
+                        const token = chunk.choices[0]?.delta?.content || "";
+                        if (token) {
+                            fullReply += token;
+                            controller.enqueue(encoder.encode(token));
+                        }
+                    }
 
-        const reply = completion.choices[0].message.content || "";
+                    const userMessage = messages[messages.length - 1];
 
-        const userMessage = messages[messages.length - 1];
+                    await supabase.from("messages").insert({
+                        chat_id: convId,
+                        user_id: user.id,
+                        role: "user",
+                        assistant_id: assistant?.id ?? null,
+                        content: userMessage.content,
+                    });
 
-        const { error: userMsgError } = await supabase
-            .from("messages")
-            .insert({
-                chat_id: convId,
-                user_id: user.id,
-                role: "user",
-                assistant_id: assistant?.id ?? null,
-                content: userMessage.content,
-            })
-            .select();
-
-        if (userMsgError) {
-            console.error("User message insert error:", userMsgError);
-        }
-
-        await supabase.from("messages").insert({
-            chat_id: convId,
-            user_id: user.id,
-            assistant_id: assistant?.id ?? null,
-            role: "assistant",
-            content: reply,
+                    await supabase.from("messages").insert({
+                        chat_id: convId,
+                        user_id: user.id,
+                        assistant_id: assistant?.id ?? null,
+                        role: "assistant",
+                        content: fullReply,
+                    });
+                } catch (err) {
+                    console.error("Stream error:", err);
+                } finally {
+                    controller.close();
+                }
+            },
         });
 
-        return NextResponse.json({ reply, conversationId: convId });
+        return new NextResponse(readable, {
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache, no-transform",
+                Connection: "keep-alive",
+            },
+        });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

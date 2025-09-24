@@ -43,7 +43,7 @@ export default function ChatSelector({ selected, onSelect }: Props) {
                         chat={chat}
                         onSelect={onSelect}
                         isActive={chat.isActive}
-                        onDelete={handleDelete}
+                        onDelete={() => handleDelete(chat.id, () => onSelect(""))}
                     />
                 ))}
             </div>

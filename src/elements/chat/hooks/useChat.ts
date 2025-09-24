@@ -38,7 +38,7 @@ export const useChat = (selected: string) => {
         fetchChats();
     }, [user?.id]);
 
-    const handleDelete = async (chatId: string) => {
+    const handleDelete = async (chatId: string, unselect?: () => void) => {
         if (!chatId) return;
 
         setChats((prev) => prev.filter((c) => c.id !== chatId));
@@ -52,6 +52,7 @@ export const useChat = (selected: string) => {
 
             if (error) throw error;
 
+            if (unselect) unselect();
             toast.success("Chat deleted successfully");
         } catch (err) {
             console.error(err);

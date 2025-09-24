@@ -1,10 +1,7 @@
-// hooks/useChatPage.ts
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
 import toast from "react-hot-toast";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
-import { useChatContext } from "@/components/context/ChatProvider";
-import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
@@ -19,9 +16,6 @@ export const useChatPage = () => {
 
     const LIMIT = 20;
     const chatContainerRef = useRef<HTMLDivElement>(null);
-
-    const { fetchChats, addChat } = useChatContext();
-    const { credits, decreaseCredits } = useUserBarContext();
 
     // dark mode toggle
     useEffect(() => {
@@ -105,20 +99,12 @@ export const useChatPage = () => {
     const sendMessage = async () => {
         if (!input.trim()) return;
 
-        if (credits !== undefined && credits < 50) {
-            toast.error("Not enough credits");
-            return;
-        }
-
-
-
         const newMessage: Message = { role: "user", content: input };
         setMessages((prev) => [...prev, newMessage]);
-
-        const loadingMessage: Message = { role: "assistant", content: "..." };
-        setMessages((prev) => [...prev, loadingMessage]);
-
         setInput("");
+
+        const loadingMessage: Message = { role: "assistant", content: "" };
+        setMessages((prev) => [...prev, loadingMessage]);
 
         try {
             const res = await fetch("/api/chat", {
@@ -136,29 +122,28 @@ export const useChatPage = () => {
                 }),
             });
 
-            if (!res.ok) {
-                toast.error("Cannot send messages!");
-                return;
-            }
+            if (!res.body) throw new Error("No response body");
 
-            const { reply, conversationId } = await res.json();
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let assistantMessage = "";
 
-            if (!selectedChat && conversationId) {
-                setSelectedChat(conversationId);
-                addChat({
-                    id: conversationId,
-                    title: newMessage.content.slice(0, 50) || "New chat",
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                assistantMessage += decoder.decode(value, { stream: true });
+
+                setMessages((prev) => {
+                    const withoutLoading = prev.filter((m) => m.content !== "...");
+                    return [...withoutLoading.slice(0, -1), { role: "assistant", content: assistantMessage }];
                 });
-                fetchChats();
             }
-            await decreaseCredits();
-            setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
-            setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-        } catch {
-            toast.error("Cannot connect to server");
-            setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
+        } catch (err) {
+            console.error(err);
+            toast.error("Stream error");
         }
     };
+
 
     const handleScroll = () => {
         if (chatContainerRef.current && chatContainerRef.current.scrollTop === 0 && hasMore && !loading) {

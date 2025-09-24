@@ -44,8 +44,8 @@ export const ChatButton = ({chat, onSelect, isActive, onDelete}: Props) => {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button className="absolute top-1/2 right-3 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded">
-                            <Trash size={14} className="text-gray-400"/>
+                        <Button className="absolute top-1/2 right-3 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-3 rounded cursor-pointer">
+                            <Trash size={14} className="text-gray-400 "/>
                         </Button>
                     </DialogTrigger>
                     <DialogContent>

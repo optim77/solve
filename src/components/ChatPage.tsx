@@ -1,9 +1,9 @@
 "use client"
-import Markdown from "react-markdown";
 import AssistantSelector from "@/components/AssistantSelector";
 import ChatSelector from "@/components/ChatSelector";
 import { BlankChatMessage } from "@/elements/chat/BlankChatMessage";
 import { useChatPage } from "@/elements/chat/hooks/useChatPage";
+import ChatMessage from "@/elements/message/ChatMessage";
 
 
 export default function ChatPage() {
@@ -47,18 +47,7 @@ export default function ChatPage() {
                     )}
                     {messages.length === 0 && <BlankChatMessage />}
                     {messages.map((m, idx) => (
-                        <div
-                            key={idx}
-                            className={`max-w-xl p-3 rounded-2xl text-sm ${
-                                m.role === "user"
-                                    ? "bg-blue-500 text-white self-end"
-                                    : m.role === "assistant"
-                                        ? "bg-gray-200 text-gray-900 self-start"
-                                        : "hidden"
-                            }`}
-                        >
-                            <Markdown>{m.content}</Markdown>
-                        </div>
+                        <ChatMessage key={idx} role={m.role} content={m.content} />
                     ))}
                     {loading && messages.length > 0 && (
                         <div className="flex justify-center items-center h-full">

@@ -2,19 +2,20 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { createClient } from "@/lib/superbase/client";
+import type { User } from "@supabase/auth-js";
 
 type SupabaseUserContextType = {
-    user: any;
+    user: User | null;
     loading: boolean;
 };
 
 const SupabaseUserContext = createContext<SupabaseUserContextType>({
     user: null,
-    loading: true
+    loading: true,
 });
 
 export function SupabaseUserProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,7 +23,7 @@ export function SupabaseUserProvider({ children }: { children: ReactNode }) {
 
         const getUser = async () => {
             const { data, error } = await supabase.auth.getUser();
-            if (!error) setUser(data.user);
+            if (!error) setUser(data.user ?? null);
             setLoading(false);
         };
 

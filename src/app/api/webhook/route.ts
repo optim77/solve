@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 
 export async function POST(req: Request) {
@@ -204,7 +204,7 @@ export async function POST(req: Request) {
 const upsertUserCredits = async (
     stripePriceId: string,
     customer: string,
-    supabase: any,
+    supabase: SupabaseClient,
     userId?: string
 ) => {
     try {

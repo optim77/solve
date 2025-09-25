@@ -1,7 +1,7 @@
 import { AuthButton } from "@/components/auth/AuthButton";
 import SplitText from "@/elements/landing/SplitText";
 import RotatingText from "@/elements/landing/RotatingText";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 export default function HomePage() {
 

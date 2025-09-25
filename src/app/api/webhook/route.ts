@@ -106,7 +106,6 @@ export async function POST(req: Request) {
                         checkout_session_id: session.id,
                     });
                 }
-                // TODO
                 await upsertUserCredits(
                     session.metadata?.stripePriceId as string,
                     session.customer as string,
@@ -116,7 +115,6 @@ export async function POST(req: Request) {
                 break;
             }
 
-            // ---------------- SUBSCRIPTION CREATED / UPDATED ----------------
             case "customer.subscription.created":
             case "customer.subscription.updated": {
                 const subscription = event.data.object as Stripe.Subscription;

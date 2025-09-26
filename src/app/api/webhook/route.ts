@@ -29,7 +29,6 @@ export async function POST(req: Request) {
     try {
         switch (event!.type) {
             case "checkout.session.completed": {
-                console.log("XXXXX");
                 const session = event.data.object as Stripe.Checkout.Session;
                 console.log(session);
 
@@ -164,32 +163,13 @@ export async function POST(req: Request) {
                 break;
             }
 
-            case "invoice.payment_succeeded": {
-                const invoice = event.data.object as Stripe.Invoice;
-                console.log("invoice", invoice);
-                if (!invoice.subscription) break;
-
-                const subscription = await stripe.subscriptions.retrieve(
-                    invoice.subscription as string
-                );
-
-                await supabase
-                    .from("profiles")
-                    .update({
-                        active_sub: true,
-                    })
-                    .eq("stripe_customer_id", subscription.customer);
-
-                break;
-            }
-
             case "invoice.payment_failed": {
                 console.log("❌ Payment failed:", event.data.object);
                 break;
             }
 
             default:
-                console.log(`Unhandled event type ${event.type}`);
+                console.log(`Unhandled event type`);
         }
 
         return NextResponse.json({ received: true });

@@ -37,7 +37,13 @@ export const usePayments = () => {
             toast.error("Something went wrong! Try again");
             throw new Error(error?.message);
         }
-        setPayments(data);
+        const mapped = data.map((p) => ({
+            ...p,
+            credits: p.credits?.[0] ?? null,
+            plans: p.plans?.[0] ?? null,
+        }));
+
+        setPayments(mapped);
         setLoadingPayments(false);
     };
 

@@ -57,7 +57,7 @@ export const useChat = (selected: string) => {
         } catch (err) {
             console.error(err);
             toast.error("Error while deleting chat");
-            fetchChats();
+            await fetchChats();
         }
     };
 

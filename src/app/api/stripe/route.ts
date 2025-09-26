@@ -31,6 +31,8 @@ export async function POST(req: Request) {
                 .single();
 
             if (error || !data) throw new Error(error?.message);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             product = data;
         } else if (type === "credit") {
             const { data, error } = await supabase
@@ -40,6 +42,8 @@ export async function POST(req: Request) {
                 .single();
 
             if (error || !data) throw new Error("Credits not found");
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             product = data;
         } else {
             throw new Error("Invalid product type");

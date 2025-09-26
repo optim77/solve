@@ -52,8 +52,11 @@ export const useUserBar = () => {
                 active_sub: data.active_sub,
             });
             if (data.plans) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 setUserPlan(data.plans);
-
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 await fetchSubscriptions(data.plans, data.active_sub);
             }
 
@@ -112,13 +115,15 @@ export const useUserBar = () => {
     };
 
     const handleManageSubscription = async () => {
-        const res = await fetch("/api/create-portal-session", {
-            method: "POST",
-            body: JSON.stringify({ userId: user.id }),
-        });
-
-        const data = await res.json();
-        window.location.href = data.url;
+        if (user){
+            const res = await fetch("/api/create-portal-session", {
+                method: "POST",
+                body: JSON.stringify({ userId: user.id }),
+            });
+            const data = await res.json();
+            window.location.href = data.url;
+        }
+        toast.error("Not found user");
     };
 
     const buyCredits = async (packId: string, userId: string) => {

@@ -2,8 +2,8 @@ export interface Purchase {
     id: string;
     created_at: string;
     checkout_session_id: string;
-    credits: Credits;
-    plans: Plan;
+    credits: Credits | null;
+    plans: Plan | null;
 }
 
 
@@ -20,7 +20,6 @@ export interface Plan {
     name: string;
     description?: string;
     price: number;
-    active_sub: boolean;
 }
 
 export interface Subscription {

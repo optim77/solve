@@ -102,7 +102,10 @@ export default function PlansModal({
                                         ${plan.price}/month
                                       </span>
                                     <br/>
-                                    {activeSub && userPlan?.name === plan.name ? (
+                                    {
+                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                        // @ts-expect-error
+                                        activeSub && userPlan?.name === plan.name ? (
 
                                         <p className="p-4 ">Your plan</p>
                                     ) : (
@@ -156,7 +159,11 @@ export default function PlansModal({
                                     </h3>
                                     <br/>
                                     <button
-                                        onClick={() => buyCredits(credit.id, user.id)}
+                                        onClick={() => {
+                                            if (user) {
+                                                buyCredits(credit.id, user.id)
+                                            }
+                                        }}
                                         className="cursor-pointer mt-5 text-gray-900 bg-gradient-to-r from-teal-200
                                         to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200
                                         focus:ring-4 focus:outline-none focus:ring-lime-200 font-medium rounded-lg

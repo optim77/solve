@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 import { useChat } from "@/elements/chat/hooks/useChat";
 
 const ChatContext = createContext<ReturnType<typeof useChat> | null>(null);

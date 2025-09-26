@@ -16,10 +16,10 @@ export async function POST(req: Request) {
                     get(name: string) {
                         return cookieStore.get(name)?.value;
                     },
-                    set(name: string, value: string, options: Parameters<typeof cookieStore.set>[1]) {
+                    set(name: string, value: string, options: Parameters<typeof cookieStore.set>[2]) {
                         cookieStore.set(name, value, options);
                     },
-                    remove(name: string, options: Parameters<typeof cookieStore.set>[1]) {
+                    remove(name: string, options: Parameters<typeof cookieStore.set>[2]) {
                         cookieStore.set(name, "", { ...options, maxAge: 0 });
                     },
                 },

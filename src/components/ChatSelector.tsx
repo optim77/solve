@@ -12,7 +12,7 @@ export default function ChatSelector({ selected, onSelect }: Props) {
 
 
     return (
-        <div className="flex flex-col h-full w-80 fixed left-0 top-0 border-r p-3">
+        <div className="flex flex-col h-full w-full max-w-xs fixed left-0 top-0 p-3">
 
 
             <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2">

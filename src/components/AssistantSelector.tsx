@@ -23,7 +23,7 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
     } = useAssistant(selected);
 
     return (
-        <div className="flex flex-col justify-between gap-2 p-3 w-80 fixed right-0 top-0 h-full overflow-y-auto border-l">
+        <div className="flex flex-col justify-between gap-2 p-3 w-80 fixed right-0 top-0 h-full overflow-y-auto">
             {/* Górna część */}
             <div className="flex flex-col gap-2">
                 {loading && (

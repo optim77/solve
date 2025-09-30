@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
 import toast from "react-hot-toast";
 import { Assistant } from "@/elements/assistant/hooks/useAssistant";
+import { useUserBarContext } from "@/elements/user/UserBarContext";
 
 type Message = { role: "user" | "assistant" | "system"; content: string; created_at?: string };
 
@@ -13,7 +14,7 @@ export const useChatPage = () => {
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-
+    const { decreaseCredits } = useUserBarContext();
     const LIMIT = 20;
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -138,6 +139,7 @@ export const useChatPage = () => {
                     return [...withoutLoading.slice(0, -1), { role: "assistant", content: assistantMessage }];
                 });
             }
+            await decreaseCredits();
         } catch (err) {
             console.error(err);
             toast.error("Stream error");

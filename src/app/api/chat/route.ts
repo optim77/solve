@@ -58,6 +58,11 @@ export async function POST(req: Request) {
                 ...messages,
             ],
             stream: true,
+            temperature: 1,
+            max_completion_tokens: 256,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0
         });
 
         const encoder = new TextEncoder();
@@ -111,3 +116,5 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
+

@@ -123,7 +123,9 @@ export const useUserBar = () => {
             const data = await res.json();
             window.location.href = data.url;
         }
-        toast.error("Not found user");
+        else {
+            toast.error("Not found user");
+        }
     };
 
     const buyCredits = async (packId: string, userId: string) => {

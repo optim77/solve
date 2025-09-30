@@ -3,7 +3,7 @@ import Markdown from "react-markdown";
 function ChatMessage({ role, content }: { role: string; content: string }) {
     return (
         <div
-            className={`max-w-xl pr-3 pl-3 pt-3 pb-1 rounded-2xl text-sm leading-relaxed ${
+            className={`max-w-xl pr-10 pl-10pt-3 pb-1 p-3 rounded-2xl text-sm leading-relaxed ${
                 role === "user"
                     ? "bg-blue-500 text-white self-end"
                     : role === "assistant"

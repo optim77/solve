@@ -14,7 +14,7 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/elements/user/hooks/useLogout";
-import { CreditCard, LogOut, Settings } from "lucide-react";
+import { CreditCard, LogOut } from "lucide-react";
 import { PaymentsModal } from "@/elements/user/elements/PaymentsModal";
 import { useUserBarContext } from "@/elements/user/UserBarContext";
 
@@ -31,7 +31,8 @@ export default function UserBar() {
         subscriptions,
         loadingSubscriptions,
         handleManageSubscription,
-        buyCredits
+        buyCredits,
+        decreaseCredits,
     } = useUserBarContext();
     const {logout} = useLogout();
     const {payments, loadingPayments} = usePayments();
@@ -66,7 +67,7 @@ export default function UserBar() {
                         <DropdownMenuItem
                             onClick={() => handleManageSubscription()}><CreditCard/> Manage
                             Subscription</DropdownMenuItem>
-                        <DropdownMenuItem><Settings/> Settings</DropdownMenuItem>
+                        {/*<DropdownMenuItem><Settings/> Settings</DropdownMenuItem>*/}
                         <DropdownMenuItem onClick={() => logout()}><LogOut/> Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

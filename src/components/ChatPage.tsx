@@ -35,7 +35,7 @@ export default function ChatPage() {
     return (
         <div className="flex h-screen">
             {/* DESKTOP LEFT SIDEBAR */}
-            <div className="hidden lg:block border-r p-4">
+            <div className="hiddenlg:block p-4">
                 <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
             </div>
 
@@ -119,11 +119,11 @@ export default function ChatPage() {
                 {/* CHAT INPUT */}
                 <div>
                     {selectedAssistant ? (
-                        <div className="text-center text-gray-400 mt-2 mb-2">
+                        <div className="text-center text-gray-400 mt-2 mb-2 rounded-t-lg">
                             Using {selectedAssistant.name} assistant
                         </div>
                     ) : (
-                        <div className="text-center text-gray-400">
+                        <div className="text-center text-gray-400 rounded-t-lg">
                             Using default assistant.
                         </div>
                     )}
@@ -148,7 +148,7 @@ export default function ChatPage() {
             </main>
 
             {/* DESKTOP RIGHT SIDEBAR */}
-            <div className="hidden lg:block  p-4">
+            <div className="hidden lg:block p-4">
                 <AssistantSelector
                     selected={selectedAssistant?.id}
                     onSelect={setSelectedAssistant}

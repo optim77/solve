@@ -1,14 +1,12 @@
-import { stripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
+import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 export async function POST(req: Request) {
     try {
-        const { packId, userId } = await req.json();
 
-        if (!packId || !userId) {
-            return new NextResponse("Missing data", { status: 400 });
-        }
+        const { packId, userId } = await req.json();
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,7 +21,7 @@ export async function POST(req: Request) {
 
         if (error || !creditPack) {
             console.error("❌ Credit pack not found:", error?.message);
-            return new NextResponse("Invalid credit pack", { status: 404 });
+            return NextResponse.json({ error: "Invalid credit pack" }, { status: 404 });
         }
 
         const session = await stripe.checkout.sessions.create({
@@ -45,8 +43,15 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ url: session.url });
-    } catch (err) {
-        console.error("❌ Error creating checkout session:", err);
-        return new NextResponse("Error", { status: 500 });
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return NextResponse.json(
+                { error: "Invalid request data", details: error.errors },
+                { status: 400 }
+            );
+        }
+
+        console.error("❌ Error creating checkout session:", error);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

@@ -136,8 +136,6 @@ export async function POST(req: Request) {
                         active_sub: subscription.status === "active",
                     })
                     .eq("stripe_customer_id", subscription.customer);
-                console.log("JINX", subscription)
-                console.log("JINX", subscription.items.data[0])
                 await upsertUserCredits(
                     plan.stripe_price_id,
                     subscription.customer as string,

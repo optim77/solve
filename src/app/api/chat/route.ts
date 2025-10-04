@@ -1,68 +1,50 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
 import { openai } from "@/lib/openai";
-
-
+import { createUserClient } from "@/lib/superbase/serverUserClient";
 
 export async function POST(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                    set(name: string, value: string, options: Parameters<typeof cookieStore.set>[2]) {
-                        cookieStore.set(name, value, options);
-                    },
-                    remove(name: string, options: Parameters<typeof cookieStore.set>[2]) {
-                        cookieStore.set(name, "", { ...options, maxAge: 0 });
-                    },
-                },
-            }
-        );
-
+        const supabase = await createUserClient();
         const { data: { user } } = await supabase.auth.getUser();
+
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const { selectedChat, assistant, messages } = await req.json();
+        const lastMessage = messages.at(-1);
         let convId = selectedChat;
 
         if (!convId) {
-            const { data: conv, error: convError } = await supabase
+            const { data: conv, error } = await supabase
                 .from("chats")
                 .insert({
                     user_id: user.id,
                     assistant_id: assistant?.id ?? null,
-                    title: messages[messages.length - 1]?.content?.slice(0, 50) || "New chat",
+                    title: lastMessage?.content?.slice(0, 50) || "New chat",
                 })
                 .select()
                 .single();
-            if (convError) throw convError;
+
+            if (error || !conv) throw error;
             convId = conv.id;
         }
 
-        const systemPrompt = assistant?.prompt || "";
-        const model = assistant?.model || "gpt-4o-mini";
+        const systemPrompt = assistant?.prompt ?? "";
+        const model = assistant?.model ?? "gpt-4o-mini";
 
         const stream = await openai.chat.completions.create({
             model,
-            messages: [
-                { role: "system", content: systemPrompt },
-                ...messages,
-            ],
             stream: true,
             temperature: 1,
             max_completion_tokens: 256,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0
+            presence_penalty: 0,
+            messages: [
+                { role: "system", content: systemPrompt },
+                ...messages,
+            ],
         });
 
         const encoder = new TextEncoder();
@@ -72,32 +54,31 @@ export async function POST(req: Request) {
             async start(controller) {
                 try {
                     for await (const chunk of stream) {
-                        const token = chunk.choices[0]?.delta?.content || "";
+                        const token = chunk.choices[0]?.delta?.content ?? "";
                         if (token) {
                             fullReply += token;
                             controller.enqueue(encoder.encode(token));
                         }
                     }
 
-                    const userMessage = messages[messages.length - 1];
-
-                    await supabase.from("messages").insert({
-                        chat_id: convId,
-                        user_id: user.id,
-                        role: "user",
-                        assistant_id: assistant?.id ?? null,
-                        content: userMessage.content,
-                    });
-
-                    await supabase.from("messages").insert({
-                        chat_id: convId,
-                        user_id: user.id,
-                        assistant_id: assistant?.id ?? null,
-                        role: "assistant",
-                        content: fullReply,
-                    });
-                } catch (err) {
-                    console.error("Stream error:", err);
+                    await supabase.from("messages").insert([
+                        {
+                            chat_id: convId,
+                            user_id: user.id,
+                            role: "user",
+                            assistant_id: assistant?.id ?? null,
+                            content: lastMessage.content,
+                        },
+                        {
+                            chat_id: convId,
+                            user_id: user.id,
+                            assistant_id: assistant?.id ?? null,
+                            role: "assistant",
+                            content: fullReply,
+                        },
+                    ]);
+                } catch (error) {
+                    console.error("Stream error:", error);
                 } finally {
                     controller.close();
                 }
@@ -111,10 +92,8 @@ export async function POST(req: Request) {
                 Connection: "keep-alive",
             },
         });
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error("POST /chat error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
-
-

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import OpenAI from "openai";
+import { openai } from "@/lib/openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 
 export async function POST(req: Request) {
     try {

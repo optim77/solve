@@ -13,7 +13,7 @@ interface Props {
     assistant: AssistantProps;
     onSelect: (assistant: Assistant) => void;
     isActive: boolean | undefined;
-    onEdit?: (id: string) => void;
+    onEdit?: (assistant: Assistant) => void;
 }
 
 export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) => {
@@ -49,7 +49,7 @@ export const AssistantButton = ({assistant, onSelect, isActive, onEdit}: Props) 
             </button>
             {onEdit && (
                 <button
-                    onClick={() => onEdit(assistant.id)}
+                    onClick={() => onEdit(assistant)}
                     className="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-600 text-white text-xs px-3 py-3 rounded"
                 >
                     <Pencil size={14} className="text-gray-400"/>

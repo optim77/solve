@@ -13,10 +13,10 @@ interface Props {
 export default function AssistantSelector({ selected, onSelect }: Props) {
     const {
         loading,
-        editId,
+        editAssistant,
         isEditOpen,
         memoizedAssistants,
-        memoizedPublicAssistant,
+        memoizedPublicAssistants,
         handleEdit,
         fetchAssistants,
         setIsEditOpen
@@ -24,7 +24,6 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
 
     return (
         <div className="flex flex-col justify-between gap-2 p-3 w-80 fixed right-0 top-0 h-full overflow-y-auto">
-            {/* Górna część */}
             <div className="flex flex-col gap-2">
                 {loading && (
                     <div className="flex justify-center items-center h-full">
@@ -49,10 +48,9 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
                 ))}
             </div>
 
-            {/* Dolna część */}
             <div className="flex flex-col gap-2">
                 <Separator />
-                {memoizedPublicAssistant.map((assistant: Assistant) => (
+                {memoizedPublicAssistants.map((assistant: Assistant) => (
                     <AssistantButton
                         key={assistant.id}
                         assistant={assistant}
@@ -62,9 +60,9 @@ export default function AssistantSelector({ selected, onSelect }: Props) {
                 ))}
             </div>
 
-            {editId && (
+            {editAssistant && (
                 <EditAssistantModal
-                    assistantId={editId}
+                    assistantId={editAssistant.id}
                     isOpen={isEditOpen}
                     onClose={() => setIsEditOpen(false)}
                     onEdited={fetchAssistants}

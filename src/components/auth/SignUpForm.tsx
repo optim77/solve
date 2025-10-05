@@ -29,7 +29,6 @@ export function SignUpForm({
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
-        const supabase = createClient();
         setIsLoading(true);
         setError(null);
 
@@ -41,6 +40,19 @@ export function SignUpForm({
 
 
         try {
+            const res = await fetch("/api/auth/check-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+            const { exists } = await res.json();
+
+            if (exists) {
+                setError("An account with this email already exists");
+                setIsLoading(false);
+                return;
+            }
+            const supabase = createClient();
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,

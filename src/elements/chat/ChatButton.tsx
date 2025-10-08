@@ -27,23 +27,23 @@ export const ChatButton = ({chat, onSelect, isActive, onDelete}: Props) => {
             <button
                 onClick={() => onSelect(chat.id)}
                 className={`flex items-center justify-between gap-2 p-4 rounded-lg transition-all duration-200 text-left w-full cursor-pointer
-    ${isActive
+                ${isActive
                     ? "border border-blue-500 shadow-lg"
                     : "border border-gray-700 hover:border-blue-400"}
-  `}
+                `}
             >
-  <span
-      className={`text-sm font-medium truncate flex-1 ${
-          isActive ? "text-blue-400" : "text-white"
-      }`}
-  >
-    {chat.title}
-  </span>
-
+              <span
+                  className={`text-sm font-medium truncate flex-1 ${
+                      isActive ? "text-blue-400" : "text-white"
+                  }`}>
+                {chat.title}
+              </span>
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button
-                            className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 hover:bg-gray-600 text-white text-xs px-2 py-2 rounded cursor-pointer">
+                            className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700
+                            hover:bg-gray-600 text-white text-xs px-2 py-2 rounded cursor-pointer"
+                        >
                             <Trash size={14} className="text-gray-400"/>
                         </Button>
                     </DialogTrigger>
@@ -60,9 +60,6 @@ export const ChatButton = ({chat, onSelect, isActive, onDelete}: Props) => {
                     </DialogContent>
                 </Dialog>
             </button>
-
-
         </div>
-    )
-        ;
+    );
 };

@@ -1,7 +1,8 @@
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/superbase/client";
 import toast from "react-hot-toast";
+
 interface Chat {
     id: string;
     title: string;
@@ -11,7 +12,7 @@ export const useChat = (selected: string) => {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         if (!user?.id) return;
 
         setLoading(true);
@@ -32,11 +33,11 @@ export const useChat = (selected: string) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.id]);
 
     useEffect(() => {
         fetchChats();
-    }, [user?.id]);
+    }, [fetchChats]);
 
     const handleDelete = async (chatId: string, unselect?: () => void) => {
         if (!chatId) return;

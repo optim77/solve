@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import { createClient } from "@/lib/superbase/client";
 import { useSupabaseUser } from "@/components/superbase/SupabaseUserProvider";
@@ -17,7 +17,7 @@ export const useEditAssistantModal = (
     const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
     const { user } = useSupabaseUser();
 
-    const fetchAssistant = async () => {
+    const fetchAssistant = useCallback(async () => {
         if (!assistantId || !user) return;
 
         const { data, error } = await createClient()
@@ -38,7 +38,7 @@ export const useEditAssistantModal = (
             setPrompt(data.prompt);
             setIcon(data.icon || "");
         }
-    };
+    },[assistantId, user?.id]);
 
     const handleSave = async () => {
         if (!name || !prompt) {
@@ -99,10 +99,8 @@ export const useEditAssistantModal = (
     };
 
     useEffect(() => {
-        if (assistantId) {
-            fetchAssistant();
-        }
-    }, [assistantId, user?.id]);
+        fetchAssistant();
+    }, [fetchAssistant]);
 
     useEffect(() => {
         fetch("/api/models")

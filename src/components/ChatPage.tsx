@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 import { useState } from "react";
 import AssistantSelector from "@/components/AssistantSelector";
 import ChatSelector from "@/components/ChatSelector";
@@ -34,15 +34,12 @@ export default function ChatPage() {
 
     return (
         <div className="flex h-screen">
-            {/* DESKTOP LEFT SIDEBAR */}
             <div className="hiddenlg:block p-4">
                 <ChatSelector selected={selectedChat} onSelect={setSelectedChat} />
             </div>
 
             <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-                {/* MOBILE NAVBAR */}
                 <div className="lg:hidden flex items-center justify-between p-4">
-                    {/* LEFT MENU TRIGGER */}
                     <Sheet open={leftOpen} onOpenChange={setLeftOpen}>
                         <SheetTrigger asChild>
                             <button className="p-2 rounded hover:bg-gray-800">
@@ -68,7 +65,6 @@ export default function ChatPage() {
 
                     <p className="text-lg font-semibold">Chat</p>
 
-                    {/* RIGHT MENU TRIGGER */}
                     <Sheet open={rightOpen} onOpenChange={setRightOpen}>
                         <SheetTrigger asChild>
                             <button className="p-2 rounded hover:bg-gray-800">
@@ -90,7 +86,6 @@ export default function ChatPage() {
                     </Sheet>
                 </div>
 
-                {/* CHAT WINDOW */}
                 <div
                     ref={chatContainerRef}
                     onScroll={handleScroll}
@@ -116,7 +111,6 @@ export default function ChatPage() {
                     )}
                 </div>
 
-                {/* CHAT INPUT */}
                 <div>
                     {selectedAssistant ? (
                         <div className="text-center text-gray-400 mt-2 mb-2 rounded-t-lg">
@@ -147,7 +141,6 @@ export default function ChatPage() {
                 </div>
             </main>
 
-            {/* DESKTOP RIGHT SIDEBAR */}
             <div className="hidden lg:block p-4">
                 <AssistantSelector
                     selected={selectedAssistant?.id}

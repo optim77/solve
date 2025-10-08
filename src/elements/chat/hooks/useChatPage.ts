@@ -37,7 +37,7 @@ export const useChatPage = () => {
                 .limit(LIMIT);
 
             if (error) {
-                console.log(error);
+                console.error(error);
                 toast.error("Error fetching messages!");
                 return;
             }
@@ -71,6 +71,7 @@ export const useChatPage = () => {
                 .limit(LIMIT);
 
             if (error) {
+                console.error(error);
                 toast.error("Error fetching messages!");
                 return;
             }
